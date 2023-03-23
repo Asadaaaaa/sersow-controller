@@ -1,6 +1,6 @@
 class Server {
   constructor() {
-    console.log("Server Started");
+    console.log(as);
   }
 };
 
