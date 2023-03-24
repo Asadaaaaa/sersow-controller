@@ -19,4 +19,4 @@ jobs:
             cd sersow/staging/sersow-controller
             git pull origin staging
             npm i
-            pm2 restart sersow-controller
+            pm2 restart stg-sersow-controller
