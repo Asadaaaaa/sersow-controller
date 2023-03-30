@@ -1,4 +1,4 @@
-name: CD
+name: Sersow API CD Production
 
 on:
   push:
