@@ -1,4 +1,4 @@
-name: Sersow CI
+name: Sersow API CI
 
 on:
   push:
