@@ -34,8 +34,8 @@ class Server {
   
   init() {    
     // Initiate Server Data
-    const serverDataPath = './server_data';
-    const resourceFolder = './src/resources';
+    const serverDataPath = '../server_data';
+    const resourceFolder = './resources';
 
     if (!FS.existsSync(serverDataPath)) {
       this.sendLogs('Initiate Server Data...');
