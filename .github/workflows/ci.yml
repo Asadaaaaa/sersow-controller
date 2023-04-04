@@ -2,9 +2,9 @@ name: Sersow API CI
 
 on:
   push:
-    branches: [ "main", "staging", "dev-account" ]
+    branches: [ "main", "staging", "dev/**" ]
   pull_request:
-    branches: [ "main", "staging", "dev-account" ]
+    branches: [ "main", "staging"]
 
 jobs:
   build:
