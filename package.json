@@ -1,6 +1,7 @@
 {
   "name": "sersow-controller",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "./src/Main.js",
   "scripts": {
@@ -10,6 +11,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2"
+    "cluster": "^0.7.7",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "fs-extra": "^11.1.1",
+    "sequelize": "^6.30.0"
   }
 }
