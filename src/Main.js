@@ -34,13 +34,13 @@ class Server {
   
   init() {    
     // Initiate Server Data
-    const serverDataPath = '../server_data';
-    const resourceFolder = './resources';
+    const serverDataPath = '/server_data';
+    const resourceFolder = '/src/resources';
 
-    if (!FS.existsSync(serverDataPath)) {
+    if (!FS.existsSync(process.cwd() + serverDataPath)) {
       this.sendLogs('Initiate Server Data...');
-      this.FS.mkdirSync(serverDataPath);
-      this.FS.copySync(resourceFolder, serverDataPath);
+      this.FS.mkdirSync(process.cwd() + serverDataPath);
+      this.FS.copySync(process.cwd() + resourceFolder, process.cwd() + serverDataPath);
     }
 
     this.run();
