@@ -1,5 +1,9 @@
 import sendLogs from './helpers/Logger.helper.js';
 
+import ModelHanlder from  './models/Handler.model.js';
+import MiddlewareHandler from './middlewares/Handler.middleware.js';
+import RouteHandler from './routes/Handler.route.js';
+
 // Library
 import * as dotenv from 'dotenv';
 import os from 'os';
@@ -26,13 +30,13 @@ class Server {
       this.multiThreads(numCPUs);
     } else {
       this.sendLogs('Total CPUs: ' + numCPUs);
-      this.sendLogs('Starting Server with 1 threads...');
+      this.sendLogs('Starting Server with 1 thread...');
 
       this.init();
     }
   }
   
-  init() {    
+  async init() {    
     // Initiate Server Data
     const serverDataPath = '/server_data';
     const resourceFolder = '/src/resources';
@@ -43,11 +47,19 @@ class Server {
       this.FS.copySync(process.cwd() + resourceFolder, process.cwd() + serverDataPath);
     }
 
+    this.model = new ModelHanlder(this);
+    const isModelConnected = await this.model.connect();
+
+    if (isModelConnected === -1) return;
+
     this.run();
   }
 
   run() {
     this.API = Express();
+
+    new MiddlewareHandler(this);
+    new RouteHandler(this);
 
     this.API.listen(this.env.PORT, this.env.IP, () => this.sendLogs('Server Started, Listening PORT ' + this.env.PORT));
   }
