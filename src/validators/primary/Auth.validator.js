@@ -2,13 +2,6 @@ class AuthScheme {
   register = {
     type: 'object',
     properties: {
-      // username: {
-      //   type: 'string',
-      //   maxLength: 15,
-      //   minLength: 1,
-      //   pattern: '^[a-zA-Z0-9_]{1,15}$',
-      //   nullable: false
-      // },
       emailUpi: {
         type: 'string',
         maxLength: 68,
@@ -85,6 +78,24 @@ class AuthScheme {
     required: ['email'],
     additionalProperties: false
   };
+  newForgetPassword = {
+    type: 'object',
+    properties: {
+      code: {
+        type: 'string',
+        maxLength: 20,
+        minLength: 20,
+        nullable: false
+      },
+      password: {
+        type: 'string',
+        minLength: 6,
+        maxLength: 18,
+        pattern: '^\\S+$',
+        nullable: false
+      }
+    }
+  }
 }
 
 export default AuthScheme;

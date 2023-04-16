@@ -1,4 +1,4 @@
-import ResponsePreset from '../controller/Response.controller.js';
+import ResponsePreset from '../helpers/ResponsePreset.helper.js';
 
 // Library
 import JWT from "jsonwebtoken";

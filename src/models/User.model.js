@@ -3,7 +3,7 @@ import { DataTypes } from "sequelize";
 
 class User{
   constructor(server) {
-    const table = server.model.db.define('user', {
+    const table = server.model.db.define('users', {
       id: {
         type: DataTypes.STRING(36),
         defaultValue: DataTypes.UUIDV4,
@@ -55,7 +55,7 @@ class User{
         allowNull: false
       }
     }, {
-      tableName: 'user',
+      tableName: 'users',
       timestamps: false
     });
     

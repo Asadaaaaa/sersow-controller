@@ -1,4 +1,4 @@
-class Response {
+class ResponsePreset {
   
   resOK(message, data) {
     return {
@@ -20,4 +20,4 @@ class Response {
   }
 }
 
-export default Response;
+export default ResponsePreset;
