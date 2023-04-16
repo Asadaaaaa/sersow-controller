@@ -1,24 +1,23 @@
 import Primary from './Primary.js';
-import Auth from '../../controller/primary/Auth.controller.js';
-import AuthorizationMiddleware from '../../middlewares/Authorization.middleware.js';
+import AuthController from '../../controller/primary/Auth.controller.js';
 
 class Authentication extends Primary {
   constructor(server) {
     super(server);
 
     this.endpointPrefix = this.endpointPrefix + '/auth';
-    this.Auth = new Auth(this.server);
-    this.AuthorizationMiddleware = new AuthorizationMiddleware(this.server);
+    this.AuthController = new AuthController(this.server);
 
     this.routes();
   }
 
   routes() {
-    this.API.post(this.endpointPrefix + '/register', (req, res) => this.Auth.register(req, res));
-    this.API.post(this.endpointPrefix + '/valid-code', this.AuthorizationMiddleware.check(), (req, res) => this.Auth.validationVerificationCode(req, res));
-    this.API.post(this.endpointPrefix + '/resend-code', this.AuthorizationMiddleware.check(), (req, res) => this.Auth.resendVerificationCode(req, res));
-    this.API.post(this.endpointPrefix + '/login', (req, res) => this.Auth.login(req,res));
-    this.API.post(this.endpointPrefix + '/req-forget-password');
+    this.API.post(this.endpointPrefix + '/register', (req, res) => this.AuthController.register(req, res));
+    this.API.post(this.endpointPrefix + '/valid-code', this.AuthorizationMiddleware.check(), (req, res) => this.AuthController.validationVerificationCode(req, res));
+    this.API.post(this.endpointPrefix + '/resend-code', this.AuthorizationMiddleware.check(), (req, res) => this.AuthController.resendVerificationCode(req, res));
+    this.API.post(this.endpointPrefix + '/login', (req, res) => this.AuthController.login(req,res));
+    this.API.post(this.endpointPrefix + '/req-forgot-password', (req, res) => this.AuthController.reqForgetPassword(req, res));
+    this.API.post(this.endpointPrefix + '/new-forgot-password', (req, res) => this.AuthController.newForgetPassword(req, res));
   }
 }
 

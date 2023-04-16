@@ -1,5 +1,5 @@
-import ResponsePreset from '../Response.controller.js';
-import AuthScheme from './AuthScheme.controller.js';
+import ResponsePreset from '../../helpers/ResponsePreset.helper.js';
+import AuthValidator from '../../validators/primary/Auth.validator.js';
 import AuthService from '../../services/primary/Auth.service.js';
 
 // Library
@@ -11,7 +11,7 @@ class Auth {
 
     this.ResponsePreset = new ResponsePreset();
     this.Ajv = new Ajv();
-    this.DataScheme = new AuthScheme();
+    this.DataScheme = new AuthValidator();
     this.AuthService = new AuthService(this.server);
   }
 
@@ -126,10 +126,34 @@ class Auth {
       'validator',
       schemeValidate.errors[0]
     ));
+    
+    this.AuthService.reqForgetPassword(req.body.email);
 
-    const resReqForgetPassword = await this.AuthService.reqForgetPassword(req.body.email);
+    return res.status(200).json(this.ResponsePreset.resOK(
+      "OK, If your email matches an existing account we will send a password reset email within a few minutes. If you have not received an email check your spam folder or resend"
+      , null));
+  }
 
-    return res.status(200).json(this.ResponsePreset.resOK('OK', null))
+  async newForgetPassword(req, res) {
+    const schemeValidate = this.Ajv.compile(this.DataScheme.newForgetPassword);
+    if(!schemeValidate(req.body)) return res.status(400).json(this.ResponsePreset.resErr(
+      400,
+      schemeValidate.errors[0].message,
+      'validator',
+      schemeValidate.errors[0]
+    ));
+
+    const { code, password } = req.body;
+    const resNewPass = await this.AuthService.newForgetPassword(code, password);
+
+    if(resNewPass === -1) return res.status(403).json(this.ResponsePreset.resErr(
+      403,
+      'Forbidded, Code is wrong',
+      'service',
+      { code: -1 }
+    ));
+
+    return res.status(200).json(this.ResponsePreset.resOK('OK', null));
   }
 }
 
