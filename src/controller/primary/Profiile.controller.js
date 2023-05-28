@@ -18,7 +18,7 @@ class Profile {
 
   // --- Update Profile
 
-  updateProfile(req, res) {
+  async updateProfile(req, res) {
     const schemeValidate = this.Ajv.compile(this.ProfileValidator.updateProfile);
     
     if(!schemeValidate(req.body)) return res.status(400).json(this.ResponsePreset.resErr(
@@ -30,7 +30,7 @@ class Profile {
     
     const { userId } = req.middlewares.authorization;
     const { name, username, bio, image } = req.body;
-    const resUpdateProfile = this.ProfileService.updateProfile(userId, name, username, bio, image);
+    const resUpdateProfile = await this.ProfileService.updateProfile(userId, name, username, bio, image);
 
     if(resUpdateProfile === -1) return res.status(403).json(this.ResponsePreset.resErr(
       403,
