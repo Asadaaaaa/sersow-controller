@@ -11,7 +11,7 @@ class Profile {
   }
 
   async updateProfile(userId, name, username, bio, image) {
-    const userModelData = this.UserModel.findOne({ id: userId });
+    const userModelData = await this.UserModel.findOne({ id: userId });
     
     if(userModelData === null) return -1;
     
