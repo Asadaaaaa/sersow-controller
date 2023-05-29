@@ -7,11 +7,11 @@ class Profile {
   constructor(server) {
     this.server = server;
 
-    this.UserModel = new UserModel(this.server);
+    this.UserModel = new UserModel(this.server).table;
   }
 
   async updateProfile(userId, name, bio, image, website) {
-    const userModelData = await this.UserModel.findOne({ id: userId });
+    const userModelData = await this.UserModel.findOne({ where: { id: userId } });
     
     if(userModelData === null) return -1;
     
