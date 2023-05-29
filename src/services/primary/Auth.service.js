@@ -38,8 +38,7 @@ class Auth {
     });
     
     if(userModelData !== null && userModelData.verif_email_upi === true) return -1;
-
-    name = name.toUpperCase();
+    
     password = md5(password + '-' + this.server.env.HASH_SALT);
     const usernameGen = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
     
