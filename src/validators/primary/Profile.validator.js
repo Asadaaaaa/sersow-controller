@@ -1,4 +1,6 @@
 class ProfileValidator {
+
+  // --- Update Profile Scheme
   updateProfile = {
     type: 'object',
     properties: {
@@ -7,13 +9,6 @@ class ProfileValidator {
         maxLength: 60,
         minLength: 1,
         pattern: '^[a-zA-Z]+(?:\\s[a-zA-Z]+)*$',
-        nullable: false
-      },
-      username: {
-        type: 'string',
-        maxLength: 15,
-        minLength: 1,
-        pattern: '^[a-zA-Z0-9_]{1,15}$',
         nullable: false
       },
       bio: {
@@ -25,10 +20,28 @@ class ProfileValidator {
       image: {
         type: 'string',
         nullable: true
+      },
+      website: {
+        type: 'string',
+        nullable: true
       }
     },
-    required: ['name', 'username', 'bio', 'image'],
+    required: ['name', 'bio', 'website'],
     additionalProperties: false
+  };
+
+  // --- Update Username Scheme
+  updateUsername = {
+    type: 'object',
+    properties: {
+      username: {
+        type: 'string',
+        maxLength: 1,
+        minLength: 15,
+        pattern: '^[a-zA-Z0-9_]{1,15}$',
+        nullable: false
+      }
+    }
   };
 }
 
