@@ -23,6 +23,8 @@ class ProfileValidator {
       },
       website: {
         type: 'string',
+        maxLength: 50,
+        minLength: 1,
         nullable: true
       }
     },
