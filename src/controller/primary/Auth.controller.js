@@ -24,7 +24,7 @@ class Auth {
       'validator',
       schemeValidate.errors[0]
     ));
-
+    
     const { emailUpi, name, gender, password } = req.body;
     const resRegister = await this.AuthService.register(emailUpi, name, gender, password);
 

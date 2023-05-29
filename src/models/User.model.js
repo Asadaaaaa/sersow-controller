@@ -50,6 +50,10 @@ class User{
         type: DataTypes.STRING(160),
         allowNull: true
       },
+      website: {
+        type: DataTypes.STRING(50),
+        allowNull: true
+      },
       createdAt: {
         type: DataTypes.DATE,
         allowNull: false

@@ -38,11 +38,9 @@ class Auth {
     });
     
     if(userModelData !== null && userModelData.verif_email_upi === true) return -1;
-
-    name = name.toUpperCase();
     password = md5(password + '-' + this.server.env.HASH_SALT);
     const usernameGen = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
-    
+
     const resUserUpdateModel = await this.UserModel.upsert({
       ...(userModelData !== null ? {id: userModelData.dataValues.id} : {}),
       ...(userModelData !== null ? {username: userModelData.dataValues.username} : {username: usernameGen()}),
@@ -54,7 +52,7 @@ class Auth {
     });
 
     this.sendVerificationCode(resUserUpdateModel[0].dataValues.id);
-
+    
     return this.generateToken(resUserUpdateModel[0].dataValues.id, true);
   }
 

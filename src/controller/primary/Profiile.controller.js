@@ -17,7 +17,6 @@ class Profile {
   }
 
   // --- Update Profile
-
   async updateProfile(req, res) {
     const schemeValidate = this.Ajv.compile(this.ProfileValidator.updateProfile);
     
@@ -29,8 +28,8 @@ class Profile {
     ));
     
     const { userId } = req.middlewares.authorization;
-    const { name, username, bio, image } = req.body;
-    const resUpdateProfile = await this.ProfileService.updateProfile(userId, name, username, bio, image);
+    const { name, bio, image, website } = req.body;
+    const resUpdateProfile = await this.ProfileService.updateProfile(userId, name, bio, image, website);
 
     if(resUpdateProfile === -1) return res.status(403).json(this.ResponsePreset.resErr(
       403,
@@ -38,9 +37,19 @@ class Profile {
       'service',
       { code: -1 }
     ));
+    
+    return res.status(200).json(this.ResponsePreset.resOK('OK', null));
+  }
+
+  // --- Add Bio Link
+  async addBioLink(req, res) {
 
   }
 
+  // --- Update Username
+  async updateUsername(req, res) {
+
+  }
 }
 
 export default Profile;
