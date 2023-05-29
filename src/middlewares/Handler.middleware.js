@@ -16,7 +16,7 @@ class Handler {
 
       this.API.use(cors({
           methods: ['GET', 'PUT', 'POST', 'DELETE'],
-          origin: this.server.env.ORIGIN,
+          origin: this.server.env.MIDDLEWARE_ORIGIN
       }));
       
       this.API.use(Express.json({
