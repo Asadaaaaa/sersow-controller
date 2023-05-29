@@ -37,7 +37,8 @@ class Profile {
       'service',
       { code: -1 }
     ));
-
+    
+    return res.status(200).json(this.ResponsePreset.resOK('OK', null));
   }
 
   // --- Add Bio Link
