@@ -244,12 +244,15 @@ class Auth {
       from: '"Sersow" <sersow.verify@gmail.com>',
       to: email,
       subject: "Sersow - Password Reset Request",
-      text: "" + 
-      "Dear User, " + userModelData.dataValues.name + "\n\n" +
-      "We are sorry to hear that you have forgotten your password. Please don't worry, we have got you covered. You can reset your password by clicking on the following link:\n\n" +
-      "http://51.79.215.17:3101/new-password?token=" + code + "\n\n" +
-      "Please keep this message and the password reset link confidential and do not share it with anyone else. We take your security very seriously and want to ensure that your information is kept safe.\n\n" +
-      "Best regards, Sersow Team"
+      html: `
+      <p>Dear User, ${userModelData.dataValues.name}</p>
+      <p>We are sorry to hear that you have forgotten your password. Please don't worry, we have got you covered. You can reset your password by click button below:</p>
+      <a style="display: inline-block; padding: 10px 20px; background-color: blue; color: white; text-decoration: none; font-weight: bold; border-radius: 4px;" href="${this.server.env.WEB_HOST}/new-password?token=${code}">Forgot Password</a>
+      <br>
+      <br>
+      <p>Please keep this message and the password reset link confidential and do not share it with anyone else. We take your security very seriously and want to ensure that your information is kept safe.</p>
+      <p>Best regards, Sersow Team</p>
+      `
     });
 
     return 1;
