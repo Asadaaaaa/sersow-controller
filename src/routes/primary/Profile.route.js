@@ -14,7 +14,8 @@ class Profile extends Primary {
   routes() {
     // Update
     this.API.patch(this.endpointPrefix + '/update', this.AuthorizationMiddleware.check(), (req, res) => this.ProfileController.updateProfile(req, res));
-    this.API.put(this.endpointPrefix + "/link", this.AuthorizationMiddleware.check(), (req, res) => this.ProfileController.addBioLink());
+    this.API.get(this.endpointPrefix + '/get/:username', (req, res) => this.ProfileController.getProfile(req, res));
+    this.API.get(this.endpointPrefix + '/get/photo/:userId', (req, res) => this.ProfileController.getPhotoProfile(req, res));
     // this.API.patch(this.endpointPrefix + '/update/username', this.AuthorizationMiddleware.check(), (req, res) => this.);
 
     // Get

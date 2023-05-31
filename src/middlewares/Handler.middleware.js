@@ -1,3 +1,5 @@
+import ResponsePreset from '../helpers/ResponsePreset.helper.js';
+
 // Library
 import Express from 'express';
 import Morgan from 'morgan';
@@ -7,6 +9,8 @@ class Handler {
     constructor(server) {
       this.server = server;
       this.API = this.server.API;
+
+      this.ResponsePreset = new ResponsePreset();
 
       this.global();
     }
@@ -18,6 +22,19 @@ class Handler {
           methods: ['GET', 'PUT', 'POST', 'DELETE'],
           origin: this.server.env.MIDDLEWARE_ORIGIN
       }));
+
+      this.API.use('/:apiVersion', (req, res, next) => {
+        const { apiVersion } = req.params;
+
+        if(apiVersion !== this.server.env.API_VERSION) return res.status(410).json(this.ResponsePreset.resErr(
+          410,
+          'Gone, Something wrong with the version of API',
+          'api-version',
+          { code: -1 }
+        ));
+
+        next();
+      });
       
       this.API.use(Express.json({
           limit: this.server.env.MIDDLEWARE_JSON_LIMIT_SIZE
@@ -31,20 +48,18 @@ class Handler {
           }
         });
         next();
-
       });
 
       this.API.use((req, res, next) => {
         req.middlewares = {};
         next();
-
       });
 
-      /* this.API.use((req, res, next) => {
+      this.API.use((req, res, next) => {
         this.server.sendLogs('New Request: ' + req.originalUrl + '\n- Header: ' + JSON.stringify(req.headers, null, 2) + '\n- Body: ' + JSON.stringify(req.body, null, 2) );
         next();
         return;
-      }); */
+      });
     }
 }
 
