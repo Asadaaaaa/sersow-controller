@@ -124,21 +124,21 @@ class Auth {
     const { refreshToken } = req.query;
     const getRefreshTokenSrv = await this.AuthService.refreshToken(tokenData, refreshToken);
     
-    if(getRefreshTokenSrv === -1) return res.status(403).json(this.ResponsePreset.resErr(
+    if(getRefreshTokenSrv === -1) return res.status(401).json(this.ResponsePreset.resErr(
       401,
       'Refresh Token Unauthorized',
       'service',
       { code: -1 }
     ));
 
-    if(getRefreshTokenSrv === -2) return res.status(403).json(this.ResponsePreset.resErr(
+    if(getRefreshTokenSrv === -2) return res.status(401).json(this.ResponsePreset.resErr(
       401,
       'Refresh Token Id Not Same',
       'service',
       { code: -2 }
     ));
 
-    if(getRefreshTokenSrv === -3) return res.status(403).json(this.ResponsePreset.resErr(
+    if(getRefreshTokenSrv === -3) return res.status(401).json(this.ResponsePreset.resErr(
       401,
       'Refresh Token User Id Not Same',
       'service',
