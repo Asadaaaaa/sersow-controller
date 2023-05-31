@@ -8,7 +8,6 @@ class ProfileValidator {
         type: 'string',
         maxLength: 60,
         minLength: 1,
-        pattern: '^[a-zA-Z]+(?:\\s[a-zA-Z]+)*$',
         nullable: false
       },
       bio: {
