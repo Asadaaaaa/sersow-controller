@@ -63,6 +63,17 @@ class AuthScheme {
     required: ['identity', 'password'],
     additionalProperties: false
   };
+  refreshToken = {
+    type: 'object',
+    properties: {
+      refereshToken: {
+        type: 'string',
+        nullable: false
+      }
+    },
+    required: ['refereshToken'],
+    additionalProperties: false
+  };
   reqForgetPassword = {
     type: 'object',
     properties: {
@@ -94,7 +105,7 @@ class AuthScheme {
         nullable: false
       }
     }
-  }
+  };
 }
 
 export default AuthScheme;

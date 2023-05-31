@@ -30,6 +30,31 @@ class Auth {
     )
   }
 
+  generateWithRefreshToken(userId) {
+    const idGen = customAlphabet('1234567890', 10);
+    const tokenId = idGen();
+    const token = JWT.sign(
+      {
+        tokenId,
+        userId
+      },
+      this.server.env.JWT_TOKEN_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    return {
+      token,
+      refreshToken: JWT.sign(
+        {
+          tokenId,
+          userId,
+          refreshToken: true
+        },
+        this.server.env.JWT_TOKEN_SECRET
+      )
+    }
+  }
+
   async register(emailUpi, name, gender, password) {
     const userModelData = await this.UserModel.findOne({
       where: {
@@ -66,7 +91,22 @@ class Auth {
     
     if(userModelData === null) return -1;
 
-    return this.generateToken(userModelData.dataValues.id);
+    return this.generateWithRefreshToken(userModelData.dataValues.id);
+  }
+
+  async refreshToken(dataToken, refreshToken) {
+    return JWT.verify(refreshToken, this.server.env.JWT_TOKEN_SECRET, (err, data) => {
+      if(err) {
+        console.log(err)
+        return -1;
+      }
+      if(data.tokenId !== dataToken.tokenId) return -2;
+      if(data.userId !== dataToken.userId) return -3;
+
+      return this.generateWithRefreshToken(dataToken.userId);
+    });
+    
+    return this.generateWithRefreshToken(dataToken.userId);
   }
 
   async validationVerificationCode(userId, code) {
@@ -95,7 +135,7 @@ class Auth {
     });
     await this.VerifCodeModel.destroy({ where: { user_id: userId } });
 
-    return this.generateToken(userId);
+    return this.generateWithRefreshToken(userId);
   }
 
   async sendVerificationCode(userId) {

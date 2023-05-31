@@ -1,13 +1,16 @@
 import UserModel from "../../models/User.model.js";
+import FollowCounterModel from "../../models/FollowCounter.model.js";
 
 // Library
 import { fileTypeFromBuffer } from 'file-type';
+import FS from 'fs-extra';
 
 class Profile {
   constructor(server) {
     this.server = server;
 
     this.UserModel = new UserModel(this.server).table;
+    this.FollowCounterModel = new FollowCounterModel(this.server).table;
   }
 
   async updateProfile(userId, name, bio, image, website) {
@@ -49,8 +52,50 @@ class Profile {
     return 1;
   }
 
-  async updateUsername(userId, username) {
-    // const userModelData = this.UserModel.findOne
+  async getProfile(username) {
+    const getDataUserModel = await this.UserModel.findOne({
+      where: { username },
+      attributes: [
+        'id',
+        'username',
+        'name',
+        'gender',
+        'gender',
+        ['image_path', 'image'],
+        'bio',
+        'website',
+        'createdAt'
+      ]
+    });
+
+    if(getDataUserModel === null) return -1;
+
+    const newData = getDataUserModel.get({ plain: true });
+
+    const getDataFollowCounterModel = await this.FollowCounterModel.findOne({ where: { user_id: newData.id } });
+
+    if(newData.image) newData.image = '/primary/get/photo/' + newData.id;
+    newData.createdAt = new Date(newData.createdAt).getTime();
+    newData.total_following = getDataFollowCounterModel.dataValues.total_following;
+    newData.total_follower = getDataFollowCounterModel.dataValues.total_follower;
+
+    return newData;
+  }
+
+  async getPhotoProfile(userId) {
+    const getDataUserModel = await this.UserModel.findOne({
+      where: { id: userId }
+    });
+
+    if(getDataUserModel === null) return -1;
+    if(getDataUserModel.dataValues.image_path === null) return -2;
+
+    const file = FS.readFileSync(process.cwd() + getDataUserModel.dataValues.image_path);
+    const { mime } = await fileTypeFromBuffer(file);
+
+    return {
+      file, mime
+    };
   }
 }
 

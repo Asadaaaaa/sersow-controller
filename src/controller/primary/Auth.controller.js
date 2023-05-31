@@ -94,7 +94,7 @@ class Auth {
       { code: -2 }
     ));
 
-    return res.status(200).json(this.ResponsePreset.resOK('OK', { token: resValidation }))
+    return res.status(200).json(this.ResponsePreset.resOK('OK', resValidation))
   }
 
   async login(req, res) {
@@ -115,7 +115,36 @@ class Auth {
       { code: -1 }
     ));
 
-    return res.status(200).json(this.ResponsePreset.resOK('OK', { token: resLogin }))
+    return res.status(200).json(this.ResponsePreset.resOK('OK', resLogin))
+  }
+
+  async refreshToken(req, res) {
+    const tokenData = req.middlewares.authorization;
+    const { refreshToken } = req.query;
+    const getRefreshTokenSrv = await this.AuthService.refreshToken(tokenData, refreshToken);
+    
+    if(getRefreshTokenSrv === -1) return res.status(403).json(this.ResponsePreset.resErr(
+      401,
+      'Refresh Token Unauthorized',
+      'service',
+      { code: -1 }
+    ));
+
+    if(getRefreshTokenSrv === -2) return res.status(403).json(this.ResponsePreset.resErr(
+      401,
+      'Refresh Token Id Not Same',
+      'service',
+      { code: -2 }
+    ));
+
+    if(getRefreshTokenSrv === -3) return res.status(403).json(this.ResponsePreset.resErr(
+      401,
+      'Refresh Token User Id Not Same',
+      'service',
+      { code: -3 }
+    ));
+
+    return res.status(200).json(this.ResponsePreset.resOK('OK', getRefreshTokenSrv));
   }
 
   async reqForgetPassword(req, res) {
