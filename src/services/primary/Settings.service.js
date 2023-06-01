@@ -13,7 +13,7 @@ class SettingsService {
       attributes: [
         'id',
         'username',
-      ],
+      ]
     });
 
     if(getDataUserModel === null) return -1;
