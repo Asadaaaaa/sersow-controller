@@ -105,8 +105,6 @@ class Auth {
 
       return this.generateWithRefreshToken(dataToken.userId);
     });
-    
-    return this.generateWithRefreshToken(dataToken.userId);
   }
 
   async validationVerificationCode(userId, code) {
