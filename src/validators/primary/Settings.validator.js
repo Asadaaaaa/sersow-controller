@@ -13,6 +13,21 @@ class SettingsValidator {
       }
     }
   };
+
+  accountUpdateEmail = {
+    type: 'object',
+    properties: {
+      email: {
+        type: 'string',
+        maxLength: 40,
+        minLength: 6,
+        pattern: '^[A-Za-z0-9._%+-]+@gmail\\.com$',
+        nullable: false
+      }
+    }
+  };
+
+
 }
 
 export default SettingsValidator;

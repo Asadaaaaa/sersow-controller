@@ -7,7 +7,6 @@ class Settings extends Primary {
 
     this.endpointPrefix = this.endpointPrefix + '/settings'
     this.SettingsController = new SettingsController(this.server);
-
     this.routes();
   }
 
@@ -16,6 +15,9 @@ class Settings extends Primary {
     this.API.patch(this.endpointPrefix + '/account/username', this.AuthorizationMiddleware.check(), (req, res) => this.SettingsController.accountUpdateUsername(req, res));
 
     // Get
+
+    //Add Gmail
+    this.API.post(this.endpointPrefix + '/account/gmail/add', this.AuthorizationMiddleware.check(), (req,res) => this.SettingsController.addEmail(req,res));
   }
 }
 
