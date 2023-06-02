@@ -280,6 +280,22 @@ class Auth {
     
     return 1;
   }
+
+  async tokenCheck(userId) {
+    const getDataUserModel = await this.UserModel.findOne({
+      where: {
+        id: userId
+      },
+      attributes: [
+        'id',
+        'username',
+        'name'
+      ]
+    });
+
+    const newData = getDataUserModel.get({ plain: true });
+    return newData
+  }
 }
 
 export default Auth;

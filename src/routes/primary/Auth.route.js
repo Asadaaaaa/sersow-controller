@@ -19,6 +19,7 @@ class Authentication extends Primary {
     this.API.get(this.endpointPrefix + '/refresh-token', this.AuthorizationMiddleware.check(), (req, res) => this.AuthController.refreshToken(req, res));
     this.API.post(this.endpointPrefix + '/req-forgot-password', (req, res) => this.AuthController.reqForgetPassword(req, res));
     this.API.post(this.endpointPrefix + '/new-forgot-password', (req, res) => this.AuthController.newForgetPassword(req, res));
+    this.API.get(this.endpointPrefix + '/token-check', this.AuthorizationMiddleware.check(), (req, res) => this.AuthController.tokenCheck(req, res));
   }
 }
 
