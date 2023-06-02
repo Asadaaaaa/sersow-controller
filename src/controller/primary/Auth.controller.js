@@ -185,6 +185,11 @@ class Auth {
 
     return res.status(200).json(this.ResponsePreset.resOK('OK', null));
   }
+
+  async tokenCheck(req, res) {
+    const getTokenCheckSrv = await this.AuthService.tokenCheck(req.middlewares.authorization.userId);
+    return res.status(200).json(this.ResponsePreset.resOK('OK', getTokenCheckSrv));
+  }
 }
 
 export default Auth;

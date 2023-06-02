@@ -38,7 +38,7 @@ class Authorization {
           data = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString('utf8'));
         }
 
-        if(req.originalUrl.endsWith('valid-code') || req.originalUrl.endsWith('resend-code')) {
+        if(req.path.endsWith('/auth/valid-code') || req.path.endsWith('/auth/resend-code')) {
           if(data.notVerified !== true) return res.status(401).json(this.ResponsePreset.resErr(
             401,
             'User in Token is Already Verified',
@@ -47,7 +47,7 @@ class Authorization {
           ));
         }
 
-        if(!(req.originalUrl.endsWith('valid-code') || req.originalUrl.endsWith('resend-code'))) {
+        if(!(req.path.endsWith('/auth/valid-code') || req.path.endsWith('/auth/resend-code'))) {
           if(data.notVerified === true) return res.status(401).json(this.ResponsePreset.resErr(
             401,
             'User in Token is Not Verified',
