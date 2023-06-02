@@ -9,6 +9,7 @@ class ActivityService {
     this.FollowingModel = new FollowingModel(this.server).table;
   }
 
+  // Follow Fungtion Service
   async follow(userId, followUserId) {
     const getDataUserModel = await this.UserModel.findOne({
       where: { id: followUserId },
@@ -24,6 +25,7 @@ class ActivityService {
     return 1;
   }
 
+  // Unfollow Function Service
   async unfollow(userId, followUserId) {
     const getDataUserModel = await this.UserModel.findOne({
       where: { id: followUserId },
