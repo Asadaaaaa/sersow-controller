@@ -294,7 +294,9 @@ class Auth {
     });
 
     const newData = getDataUserModel.get({ plain: true });
-    return newData
+    newData.image =  '/primary/get/photo/' + newData.id;
+
+    return newData;
   }
 }
 
