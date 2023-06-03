@@ -291,6 +291,8 @@ class Auth {
       ]
     });
 
+    if(getDataUserModel === null) return -1;
+
     const newData = getDataUserModel.get({ plain: true });
     newData.image =  '/primary/get/photo/' + newData.id;
 
