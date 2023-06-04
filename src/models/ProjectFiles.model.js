@@ -1,42 +1,34 @@
 // Library
 import { DataTypes } from "sequelize";
 
-class Project {
+class ProjectFiles {
   constructor(server) {
-    const table = server.model.db.define('project', {
+    const table = server.model.db.define('project_files', {
       id: {
         type: DataTypes.STRING(36),
         defaultValue: DataTypes.UUIDV4,
         allowNull: false,
         primaryKey: true
       },
-      user_id: {
+      project_id: {
         type: DataTypes.STRING(36),
         defaultValue: DataTypes.UUIDV4,
         allowNull: false
       },
-      title: {
-        type: DataTypes.STRING(25),
+      type: {
+        type: DataTypes.INTEGER,
         allowNull: false
       },
-      description: {
-        type: DataTypes.STRING(700),
-        allowNull: true
+      method: {
+        type: DataTypes.INTEGER,
+        allowNull: false
       },
-      logo_path: {
+      url: {
         type: DataTypes.TEXT,
         allowNull: true
-      },
-      published: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false
-      },
-      published_datetime: {
-        type: DataTypes.DATE,
-        allowNull: false
       }
     }, {
-      tableName: 'project',
+      tableName: 'project_files',
       timestamps: false
     });
 
@@ -44,4 +36,4 @@ class Project {
   }
 }
 
-export default Project;
+export default ProjectFiles;
