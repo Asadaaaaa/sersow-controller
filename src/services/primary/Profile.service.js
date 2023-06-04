@@ -76,7 +76,7 @@ class Profile {
 
     const getDataFollowCounterModel = await this.FollowCounterModel.findOne({ where: { user_id: newData.id } });
 
-    if(newData.image) newData.image = '/primary/get/photo/' + newData.id;
+    if(newData.image) newData.image = '/profile/get/photo/' + newData.id;
     newData.createdAt = new Date(newData.createdAt).getTime();
     newData.total_following = getDataFollowCounterModel.dataValues.total_following;
     newData.total_follower = getDataFollowCounterModel.dataValues.total_follower;
