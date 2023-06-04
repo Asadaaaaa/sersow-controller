@@ -28,8 +28,6 @@ class Handler{
 
     return this.db;
   }
-
-
 }
 
 export default Handler;

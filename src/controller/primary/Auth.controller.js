@@ -188,6 +188,13 @@ class Auth {
 
   async tokenCheck(req, res) {
     const getTokenCheckSrv = await this.AuthService.tokenCheck(req.middlewares.authorization.userId);
+
+    if(getTokenCheckSrv === -1) return res.status(404).json(this.ResponsePreset.resErr(
+      404,
+      'Not Found, User Id Not Found',
+      'service',
+      { code: -1 }
+    ));
     return res.status(200).json(this.ResponsePreset.resOK('OK', getTokenCheckSrv));
   }
 }

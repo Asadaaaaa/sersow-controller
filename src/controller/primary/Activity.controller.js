@@ -1,16 +1,12 @@
 import ResponsePreset from '../../helpers/ResponsePreset.helper.js';
 import ActivityService from '../../services/primary/Activity.service.js';
 
-// Library
-import Ajv from 'ajv';
-
 class ActivityController {
 
   constructor(server) {
     this.server = server;
 
     this.ResponsePreset = new ResponsePreset();
-    this.Ajv = new Ajv();
     this.ActivityService = new ActivityService(this.server);
   }
 

@@ -34,7 +34,9 @@ class Profile {
         this.server.FS.writeFileSync(process.cwd() + imagePath, file);
       } else {
         this.server.FS.unlinkSync(process.cwd() + imagePath);
-        imagePath = null;
+
+        const defaultImageNumber = Math.floor(Math.random() * 10) + 1;
+        imagePath = '/server_data/resources/default_profile_image/' + defaultImageNumber + '.png';
       }
     }
 
