@@ -11,6 +11,7 @@ import ProjectFilesModel from "../../models/ProjectFiles.model.js";
 
 // Library
 import { Op } from "sequelize";
+import { fileTypeFromBuffer } from 'file-type';
 
 class ProjectService {
   constructor(server) {
@@ -30,6 +31,7 @@ class ProjectService {
 
   // Functon For Edit Project
   async manageProject(reqData, isPublished) {
+    return -3;
     const {
       id, title, description, categories, otherCtg,
       logo, thumbnail, image1, image2, image3,
@@ -53,11 +55,9 @@ class ProjectService {
     if (categories !== null) {
       const getDataCategoryModel = await this.CategoryModel.findAll({
         where: {
-          [Op.and]: categories.map(id => ({
-            id: {
-              [Op.eq]: id
-            }
-          }))
+          id: {
+            [Op.in]: categories
+          }
         }
       });
 
@@ -173,11 +173,9 @@ class ProjectService {
     if (contributors !== null) {
       const getDataUserModel = await this.UserModel.findAll({
         where: {
-          [Op.and]: contributors.map(id => ({
-            id: {
-              [Op.eq]: id
-            }
-          }))
+          id: {
+            [Op.in]: contributors
+          }
         }
       });
 
@@ -381,11 +379,9 @@ class ProjectService {
       if(getDataProjectContributorsModel === null) {
         const getDataUserModel = await this.UserModel.findAll({
           where: {
-            [Op.and]: getDataProjectContributorsModel.map(val => ({
-              id: {
-                [Op.eq]: val.dataValues.user_id
-              }
-            }))
+            id: {
+              [Op.in]: getDataProjectContributorsModel.map(val => val.dataValues.user_id)
+            }
           }
         });
 
@@ -410,11 +406,9 @@ class ProjectService {
       if(getDataProjectCategoryModel.length !== 0) {
         const getDataCategoryModel = await this.CategoryModel.findAll({
           where: {
-            [Op.and]: getDataProjectCategoryModel.map(val => ({
-              id: {
-                [Op.eq]: val.dataValues.id
-              }
-            }))
+            id: {
+              [Op.in]: getDataProjectCategoryModel.map(val => val.dataValues.id)
+            }
           }
         });
 
