@@ -46,6 +46,13 @@ class Settings {
       { code: -2 }
     ));
 
+    if(getSettingsAccountUpdateUsernameSrv === -3) return res.status(403).json(this.ResponsePreset.resErr(
+      403,
+      'Forbidden, Username not available',
+      'service', 
+      { code: -3 }
+    ));
+
     return res.status(200).json(this.ResponsePreset.resOK('OK', null));
   }
 
@@ -78,6 +85,13 @@ class Settings {
       { code: -2 }
     ));
 
+    if(getSettingsAccountAddEmail === -3) return res.status(403).json(this.ResponsePreset.resErr(
+      403,
+      'Forbidden, Email is already in use by someone else',
+      'service', 
+      { code: -3 }
+    ));
+
     return res.status(200).json(this.ResponsePreset.resOK('OK', null));
   }
 
@@ -108,7 +122,7 @@ class Settings {
       { code: -2 }
     ));
 
-    return res.status(200).json(this.ResponsePreset.resOK('OK', resValidation))
+    return res.status(200).json(this.ResponsePreset.resOK('OK', null))
   }
 
   // --- send Valid code
