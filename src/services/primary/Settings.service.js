@@ -79,7 +79,7 @@ class SettingsService {
       where: { email_gmail }
     });
 
-    if(isDataUserModelExist !== null) return -3;
+    if(isDataUserModelExist !== null && isDataUserModelExist.dataValues.id !== userId) return -3;
 
     await this.UserModel.update({ email_gmail }, { where: { id: userId } });
 
