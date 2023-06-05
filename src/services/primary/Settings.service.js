@@ -52,6 +52,12 @@ class SettingsService {
     if(getDataUserModel === null) return -1;
     if(getDataUserModel.dataValues.username === username) return -2;
 
+    const isDataUserModelExist = await this.UserModel.findOne({
+      where: { username }
+    });
+
+    if(isDataUserModelExist !== null) return -3;
+
     await this.UserModel.update({ username }, { where: { id: userId } });
 
     return 1;
@@ -65,9 +71,15 @@ class SettingsService {
         'email_gmail',
       ],
     });
-    // console.log(getDataUserModel.dataValues());
+    
     if(getDataUserModel === null) return -1;
     if(getDataUserModel.dataValues.email_gmail  && getDataUserModel.dataValues.verif_email_gmail === true) return -2;
+
+    const isDataUserModelExist = await this.UserModel.findOne({
+      where: { email_gmail }
+    });
+
+    if(isDataUserModelExist !== null) return -3;
 
     await this.UserModel.update({ email_gmail }, { where: { id: userId } });
 
@@ -152,7 +164,7 @@ class SettingsService {
     });
     await this.VerifCodeModel.destroy({ where: { user_id: userId } });
 
-    return this.generateWithRefreshToken(userId);
+    return 1;
   }
 }
 

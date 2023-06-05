@@ -20,7 +20,7 @@ class SettingsValidator {
       email: {
         type: 'string',
         maxLength: 40,
-        minLength: 6,
+        minLength: 11,
         pattern: '^[A-Za-z0-9._%+-]+@gmail\\.com$',
         nullable: false
       }

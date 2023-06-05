@@ -61,7 +61,7 @@ class Profile {
 
   async getProfile(username, userId) {
     const getDataUserModel = await this.UserModel.findOne({
-      where: { username },
+      where: { username, verif_email_upi: true },
       attributes: [
         'id',
         'username',
@@ -69,6 +69,7 @@ class Profile {
         'gender',
         'email_upi',
         'email_gmail',
+        'verif_email_gmail',
         ['image_path', 'image'],
         'bio',
         'website',
@@ -88,7 +89,13 @@ class Profile {
 
     const getDataFollowCounterModel = await this.FollowCounterModel.findOne({ where: { user_id: newData.id } });
 
+    if(newData.verif_email_gmail === false) {
+      delete newData.verif_email_gmail;
+      newData.email_gmail = null;
+    }
+
     if(newData.image) newData.image = '/profile/get/photo/' + newData.id;
+    
     newData.createdAt = new Date(newData.createdAt).getTime();
     newData.total_following = getDataFollowCounterModel.dataValues.total_following;
     newData.total_follower = getDataFollowCounterModel.dataValues.total_follower;
