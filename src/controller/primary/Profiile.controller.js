@@ -90,6 +90,39 @@ class Profile {
     res.setHeader('Content-Type', getPhotoProfileSrv.mime);
     return res.status(200).send(getPhotoProfileSrv.file);
   }
+
+  // --- Search Profile
+  async searchProfile(req, res) {
+    const { username } = req.params;
+    const { limit } = req.query;
+    
+    if(!username) return res.status(400).json(this.ResponsePreset.resErr(
+      400,
+      'Bad Request, Search Text Not Provided',
+      'service',
+      { code: -1 }
+    ));
+    
+    if(isNaN(limit)) return res.status(400).json(this.ResponsePreset.resErr(
+      400,
+      'Bad Request, Limit Must Be a Number',
+      'service',
+      { code: -2 }
+    ));
+
+    if(Number(limit) > 25 && Number(limit) < 1) return res.status(400).json(this.ResponsePreset.resErr(
+      400,
+      'Bad Request, Limit Minimum 1 and Maximum Limit is 25',
+      'service'
+    ));
+
+    const searchProfileSrv = await this.ProfileService.searchProfile(username.toLowerCase(), Number(limit));
+
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      searchProfileSrv
+    ));
+  }
 }
 
 export default Profile;
