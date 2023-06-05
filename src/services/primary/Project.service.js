@@ -9,6 +9,9 @@ import ProjectThumbnailModel from "../../models/ProjectThumbnail.model.js";
 import ProjectPreviewModel from "../../models/ProjectPreview.model.js";
 import ProjectFilesModel from "../../models/ProjectFiles.model.js";
 
+// Library
+import { Op } from "sequelize";
+
 class ProjectService {
   constructor(server) {
     this.server = server;
@@ -37,7 +40,7 @@ class ProjectService {
       const getDataProjectModel = await this.ProjectModel.findOne({ where: { id } });
 
       if (getDataProjectModel === null) return -1;
-      if (isPublished === true && getDataProjectModel.dataValues.published === true) return -2;
+      if (isPublished === false && getDataProjectModel.dataValues.published === true) return -2;
 
       await this.ProjectContributorsModel.destroy({ where: { project_id: getDataProjectModel.dataValues.id }});
       await this.ProjectCategoryModel.destroy({ where: { project_id: getDataProjectModel.dataValues.id }});
@@ -58,7 +61,7 @@ class ProjectService {
         }
       });
 
-      if (getDataCategoryModel.length !== categories.length) return -3;
+      if(getDataCategoryModel.length !== categories.length) return -3;
     }
 
     let logoFile;
@@ -332,10 +335,114 @@ class ProjectService {
     }
   }
 
-  // Follow Fungtion Service
+  // Draft Project Function Service
   async draftProject(reqData) {
     const getManageProject = await this.manageProject(reqData, false);
     return getManageProject;
+  }
+
+  // Publish Project Function Service
+  async publishProject(reqData) {
+    const getManageProject = await this.manageProject(reqData, true);
+    return getManageProject;
+  }
+
+  // For You Page Service
+  async getForYou(offset, limit) {
+    const getDataProjectModel = await this.ProjectModel.findAll({
+      where: {
+        published_datetime: {
+          [Op.lt]: new Date(),
+        },
+        published: true
+      },
+      order: [['published_datetime', 'DESC']],
+      offset,
+      limit,
+      attributes: [
+        'id',
+        'title',
+        'description',
+        ['logo_path', 'logo']
+      ]
+    });
+
+    for(let i in getDataProjectModel) {
+      getDataProjectModel[i].dataValues.owner_image = '/profile/get/' + getDataProjectModel[i].dataValues.user_id;
+
+      if(getDataProjectModel[i].dataValues.logo) getDataProjectModel[i].dataValues.logo = '/project/get/logo/' + getDataProjectModel[i].dataValues.id;
+
+      const getDataProjectContributorsModel = await this.ProjectContributorsModel.findAll({
+        where: {
+          project_id: getDataProjectModel[i].dataValues.id
+        }
+      });
+      
+      if(getDataProjectContributorsModel === null) {
+        const getDataUserModel = await this.UserModel.findAll({
+          where: {
+            [Op.and]: getDataProjectContributorsModel.map(val => ({
+              id: {
+                [Op.eq]: val.dataValues.user_id
+              }
+            }))
+          }
+        });
+
+        getDataProjectModel[i].dataValues.contributors = getDataUserModel.map(val => {
+          return {
+            user_id: val.dataValues.id,
+            name: val.dataValues.id,
+            username: val.dataValues.username,
+            image: '/profile/get/' + val.dataValues.id
+          }
+        });
+      } else {
+        getDataProjectModel[i].dataValues.contributors = null;
+      }
+
+      const getDataProjectCategoryModel = this.ProjectCategoryModel.findAll({
+        where: {
+          project_id: getDataProjectModel[i].dataValues.id
+        }
+      });
+      
+      if(getDataProjectCategoryModel.length !== 0) {
+        const getDataCategoryModel = await this.CategoryModel.findAll({
+          where: {
+            [Op.and]: getDataProjectCategoryModel.map(val => ({
+              id: {
+                [Op.eq]: val.dataValues.id
+              }
+            }))
+          }
+        });
+
+        getDataProjectModel[i].dataValues.categories = getDataCategoryModel.map(val => val.dataValues.name)
+      } else {
+        getDataProjectModel[i].dataValues.categories = null;
+      }
+
+      const getDataProjectThumbnailModel = await this.ProjectThumbnailModel.findOne({
+        project_id: getDataProjectModel[i].dataValues.id
+      });
+      
+      if(getDataProjectThumbnailModel !== null) {
+        getDataProjectModel[i].dataValues.thumbnail = {};
+
+        if(getDataProjectThumbnailModel.dataValues.method === 1) {
+          getDataProjectModel[i].dataValues.thumbnail.isUrl = false;
+          getDataProjectModel[i].dataValues.thumbnail.data = '/project/get/thumbnail/' + getDataProjectModel[i].dataValues.id;
+        } else {
+          getDataProjectModel[i].dataValues.thumbnail.isUrl = true;
+          getDataProjectModel[i].dataValues.thumbnail.data = getDataProjectThumbnailModel.dataValues.url;
+        }
+      } else {
+        getDataProjectModel[i].dataValues.thumbnail = null;
+      }
+    }
+    console.log(getDataProjectModel)
+    return getDataProjectModel;
   }
 
   async getCategoryProject() {
