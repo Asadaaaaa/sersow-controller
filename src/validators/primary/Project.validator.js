@@ -46,6 +46,7 @@ class ProjectValidator {
       },
       thumbnail: {
         type: 'object',
+        nullable: true,
         properties: {
           isUrl: {
             type: 'boolean',

@@ -19,7 +19,7 @@ class Handler {
       this.API.use(Morgan('tiny'));
 
       this.API.use(cors({
-          methods: ['GET', 'PUT', 'POST', 'DELETE'],
+          methods: ['GET', 'PUT', 'POST', 'DELETE', 'PATCH'],
           origin: this.server.env.MIDDLEWARE_ORIGIN
       }));
 

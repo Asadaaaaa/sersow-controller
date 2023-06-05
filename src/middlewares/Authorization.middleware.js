@@ -52,7 +52,7 @@ class Authorization {
             { code: -4 }
           ));
         }
-
+        
         if(!(req.path.endsWith('/auth/valid-code') || req.path.endsWith('/auth/resend-code'))) {
           if(data.notVerified === true) return res.status(401).json(this.ResponsePreset.resErr(
             401,
