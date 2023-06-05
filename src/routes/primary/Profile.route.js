@@ -17,6 +17,7 @@ class Profile extends Primary {
     // Get 
     this.API.get(this.endpointPrefix + '/get/:username', (req, res) => this.ProfileController.getProfile(req, res));
     this.API.get(this.endpointPrefix + '/get/photo/:userId', (req, res) => this.ProfileController.getPhotoProfile(req, res));
+    this.API.get(this.endpointPrefix + '/search/username/:username', (req, res) => this.ProfileController.searchProfile(req, res));
   }
 }
 
