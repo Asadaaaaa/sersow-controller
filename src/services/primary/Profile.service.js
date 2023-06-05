@@ -1,5 +1,6 @@
 import UserModel from "../../models/User.model.js";
 import FollowCounterModel from "../../models/FollowCounter.model.js";
+import ProjectModel from "../../models/Project.model.js";
 
 // Library
 import { Op } from "sequelize";
@@ -12,6 +13,7 @@ class Profile {
 
     this.UserModel = new UserModel(this.server).table;
     this.FollowCounterModel = new FollowCounterModel(this.server).table;
+    this.ProjectModel = new ProjectModel(this.server).table;
   }
 
   async updateProfile(userId, name, bio, image, website) {
@@ -71,6 +73,12 @@ class Profile {
         'createdAt'
       ]
     });
+    
+    const getDataProjectMdel = await this.ProjectModel.findAll({
+      where: {
+        user_id: getDataUserModel.dataValues.id
+      }
+    });
 
     if(getDataUserModel === null) return -1;
 
@@ -82,6 +90,7 @@ class Profile {
     newData.createdAt = new Date(newData.createdAt).getTime();
     newData.total_following = getDataFollowCounterModel.dataValues.total_following;
     newData.total_follower = getDataFollowCounterModel.dataValues.total_follower;
+    newData.total_project = getDataProjectMdel.length;
 
     return newData;
   }
