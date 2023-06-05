@@ -103,7 +103,7 @@ class Profile {
   }
 
   async searchProfile(username, limit) {
-    const getDataUserModel = this.UserModel.findAll({
+    const getDataUserModel = await this.UserModel.findAll({
       where: {
         username: {
           [Op.substring]:  `%${username}%`
@@ -112,10 +112,21 @@ class Profile {
       order: [
         [this.server.model.db.literal(`LOCATE('${username}', username)`)], // Sort by similarity
       ],
-      limit
+      limit,
+      attributes: [
+        'id',
+        'username',
+        'name',
+        ['image_path', 'image']
+      ]
     });
 
-    return getDataUserModel;
+    const newData = getDataUserModel.map(val => {
+      val.dataValues.image = '/profile/get/photo/' + val.dataValues.id;
+      return val.dataValues;
+    });
+
+    return newData;
   }
 }
 
