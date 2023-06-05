@@ -1,4 +1,5 @@
 import UserModel from "../../models/User.model.js";
+import FollowingModel from "../../models/Following.model.js";
 import FollowCounterModel from "../../models/FollowCounter.model.js";
 import ProjectModel from "../../models/Project.model.js";
 
@@ -12,6 +13,7 @@ class Profile {
     this.server = server;
 
     this.UserModel = new UserModel(this.server).table;
+    this.FollowingModel = new FollowingModel(this.server).table;
     this.FollowCounterModel = new FollowCounterModel(this.server).table;
     this.ProjectModel = new ProjectModel(this.server).table;
   }
@@ -57,7 +59,7 @@ class Profile {
     return 1;
   }
 
-  async getProfile(username) {
+  async getProfile(username, userId) {
     const getDataUserModel = await this.UserModel.findOne({
       where: { username },
       attributes: [
@@ -66,21 +68,21 @@ class Profile {
         'name',
         'gender',
         'email_upi',
-        'email_gaail',
+        'email_gmail',
         ['image_path', 'image'],
         'bio',
         'website',
         'createdAt'
       ]
     });
-    
+
+    if(getDataUserModel === null) return -1;
+
     const getDataProjectMdel = await this.ProjectModel.findAll({
       where: {
         user_id: getDataUserModel.dataValues.id
       }
     });
-
-    if(getDataUserModel === null) return -1;
 
     const newData = getDataUserModel.get({ plain: true });
 
@@ -91,6 +93,19 @@ class Profile {
     newData.total_following = getDataFollowCounterModel.dataValues.total_following;
     newData.total_follower = getDataFollowCounterModel.dataValues.total_follower;
     newData.total_project = getDataProjectMdel.length;
+    newData.isMyProfile = userId === newData.id ? true : false;
+    newData.isFollowed = false;
+
+    if(userId) {
+      const getDataFollowingModel = await this.FollowingModel.findOne({
+        where: {
+          user_id: userId,
+          follow_user_id: getDataUserModel.dataValues.id
+        }
+      });
+
+      newData.isFollowed = getDataFollowingModel ? true : false;
+    }
 
     return newData;
   }

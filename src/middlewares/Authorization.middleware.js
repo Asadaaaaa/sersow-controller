@@ -11,13 +11,19 @@ class Authorization {
 
   check() {
     return (req, res, next) => {
+      req.middlewares.authorization = {};
       const token = req.headers['authorization'];
-      if(!token || token === 'undefined') return res.status(401).json(this.ResponsePreset.resErr(
-        401,
-        'Request Unauthorized',
-        'token',
-        { code: -1 }
-      ));
+      
+      if(!token || token === 'undefined') {
+        if(req.path.endsWith('/profile/get/' + req.params.username)) return next();
+
+        return res.status(401).json(this.ResponsePreset.resErr(
+          401,
+          'Request Unauthorized',
+          'token',
+          { code: -1 }
+        ));
+      };
       
       JWT.verify(token, this.server.env.JWT_TOKEN_SECRET, (err, data) => {
         if(err) {
@@ -58,7 +64,7 @@ class Authorization {
 
         req.middlewares.authorization = data;
 
-        next();
+        return next();
       });
     }
   }

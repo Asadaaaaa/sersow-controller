@@ -58,6 +58,7 @@ class Profile {
   // --- Get Profile
   async getProfile(req, res) {
     const { username } = req.params;
+    const { userId } = req.middlewares.authorization;
 
     if(!username) return res.status(400).json(this.ResponsePreset.resErr(
       400,
@@ -66,7 +67,7 @@ class Profile {
       { code: -1 }
     ));
 
-    const getProfileSrv = await this.ProfileService.getProfile(username);
+    const getProfileSrv = await this.ProfileService.getProfile(username, userId);
     if(getProfileSrv === -1) return res.status(404).json(this.ResponsePreset.resErr(404, 'Not Found, User Not Exist', 'service', { code: -2 }));
     
     return res.status(200).json(this.ResponsePreset.resOK('OK', getProfileSrv));
