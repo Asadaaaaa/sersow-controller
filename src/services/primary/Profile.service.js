@@ -2,6 +2,7 @@ import UserModel from "../../models/User.model.js";
 import FollowCounterModel from "../../models/FollowCounter.model.js";
 
 // Library
+import { Op } from "sequelize";
 import { fileTypeFromBuffer } from 'file-type';
 import FS from 'fs-extra';
 
@@ -62,7 +63,8 @@ class Profile {
         'username',
         'name',
         'gender',
-        'gender',
+        'email_upi',
+        'email_gaail',
         ['image_path', 'image'],
         'bio',
         'website',
@@ -98,6 +100,22 @@ class Profile {
     return {
       file, mime
     };
+  }
+
+  async searchProfile(username, limit) {
+    const getDataUserModel = this.UserModel.findAll({
+      where: {
+        username: {
+          [Op.substring]:  `%${username}%`
+        }
+      },
+      order: [
+        [this.server.model.db.literal(`LOCATE('${username}', username)`)], // Sort by similarity
+      ],
+      limit
+    });
+
+    return getDataUserModel;
   }
 }
 
