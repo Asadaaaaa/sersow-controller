@@ -155,6 +155,49 @@ class Settings {
       null
     ))
   }
+
+  // --- Change Password Controller
+  async changePassword(req, res) {
+    const schemeValidate = this.Ajv.compile(this.SettingsValidator.changePassword);
+    
+    if(!schemeValidate(req.body)) return res.status(400).json(this.ResponsePreset.resErr(
+      400,
+      schemeValidate.errors[0].message,
+      'validator',
+      schemeValidate.errors[0]
+    ));
+
+    const { userId } = req.middlewares.authorization;
+    const { password, newPassword } = req.body;
+
+    const getChangePasswordSrv = await this.SettingsService.changePassword(userId, password, newPassword);
+    
+    if(getChangePasswordSrv === -1) return res.status(404).json(this.ResponsePreset.resErr(
+      404,
+      'Not Found, User Not Exist',
+      'service',
+      { code: -1 }
+    ));
+
+    if(getChangePasswordSrv === -2) return res.status(403).json(this.ResponsePreset.resErr(
+      403,
+      'Forbidden, Password is Wrong',
+      'service',
+      { code: -2 }
+    ));
+
+    if(getChangePasswordSrv === -3) return res.status(403).json(this.ResponsePreset.resErr(
+      403,
+      'Forbidden, New Password Cannot Same With Current Password',
+      'service',
+      { code: -3 }
+    ));
+
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      null
+    ));
+  }
 }
 
 export default Settings;

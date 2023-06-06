@@ -41,6 +41,28 @@ class SettingsValidator {
     additionalProperties: false
   };
 
+  changePassword = {
+    type: 'object',
+    properties: {
+      password: {
+        type: 'string',
+        minLength: 6,
+        maxLength: 18,
+        pattern: '^\\S+$',
+        nullable: false
+      },
+      newPassword: {
+        type: 'string',
+        minLength: 6,
+        maxLength: 18,
+        pattern: '^\\S+$',
+        nullable: false
+      }
+    },
+    required: ['password', 'newPassword'],
+    additionalProperties: false
+  };
+
 }
 
 export default SettingsValidator;
