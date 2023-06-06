@@ -14,7 +14,10 @@ class Settings extends Primary {
     // Update
     this.API.patch(this.endpointPrefix + '/account/username', this.AuthorizationMiddleware.check(), (req, res) => this.SettingsController.accountUpdateUsername(req, res));
 
-    // Get
+    // Change Password
+    this.API.patch(this.endpointPrefix + '/account/change-password', this.AuthorizationMiddleware.check(), (req, res) => this.SettingsController.changePassword(req, res));
+
+    // Post
 
     //Add Gmail
     this.API.post(this.endpointPrefix + '/account/gmail/add', this.AuthorizationMiddleware.check(), (req,res) => this.SettingsController.accountAddEmail(req,res));

@@ -5,7 +5,7 @@ import VerifCodeModel from '../../models/VerifCode.model.js';
 import JWT from 'jsonwebtoken';
 import { customAlphabet } from 'nanoid';
 import mailer from 'nodemailer';
-
+import md5 from "md5";
 class SettingsService {
   constructor(server) {
     this.server = server;
@@ -165,6 +165,27 @@ class SettingsService {
     await this.VerifCodeModel.destroy({ where: { user_id: userId } });
 
     return 1;
+  }
+
+  async changePassword(userId, password, newPassword) {
+    const getDataUserModel = await this.UserModel.findOne({
+      where: {
+        id: userId,
+      },
+      plain: true
+    });
+
+    if(getDataUserModel === null) return -1;
+    if(getDataUserModel.password !== md5(password + '-' + this.server.env.HASH_SALT)) return -2;
+    if(getDataUserModel.password === md5(newPassword + '-' + this.server.env.HASH_SALT)) return -3;
+
+    this.UserModel.update({
+      password: md5(newPassword + '-' + this.server.env.HASH_SALT)
+    }, {
+      where: {
+        id: userId
+      }
+    });
   }
 }
 
