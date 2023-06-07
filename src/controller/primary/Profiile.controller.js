@@ -124,6 +124,15 @@ class Profile {
       searchProfileSrv
     ));
   }
+
+  async getTrendsUsers(req, res) {
+    const getTrendsUsersSrv = await this.ProfileService.getTrendsUsers();
+    
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      getTrendsUsersSrv
+    ));
+  }
 }
 
 export default Profile;

@@ -2,6 +2,7 @@ import UserModel from "../../models/User.model.js";
 import FollowingModel from "../../models/Following.model.js";
 import FollowCounterModel from "../../models/FollowCounter.model.js";
 import ProjectModel from "../../models/Project.model.js";
+import UserRank from "../../models/UserRank.model.js";
 
 // Library
 import { Op } from "sequelize";
@@ -16,6 +17,7 @@ class Profile {
     this.FollowingModel = new FollowingModel(this.server).table;
     this.FollowCounterModel = new FollowCounterModel(this.server).table;
     this.ProjectModel = new ProjectModel(this.server).table;
+    this.UserRank = new UserRank(this.server).table;
   }
 
   async updateProfile(userId, name, bio, image, website) {
@@ -158,6 +160,24 @@ class Profile {
     });
 
     return newData;
+  }
+
+  async getTrendsUsers() {
+    const getDataUserRankModel = await this.UserRank.findAll({
+      attributes: [
+        ['user_id', 'id'],
+        'username',
+        'name',
+        ['image_path', 'image']
+      ]
+    });
+
+
+
+    return getDataUserRankModel.map(val => {
+      val.dataValues.image = '/profile/get/photo/' + val.dataValues.id;
+      return val.dataValues;
+    });
   }
 }
 
