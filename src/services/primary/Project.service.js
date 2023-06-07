@@ -136,7 +136,7 @@ class ProjectService {
         if (!fileType) return -14;
 
         if (!(fileType && (fileType.ext === 'zip' || fileType.ext === 'exe' || fileType.ext === 'apk'))) return -14;
-        if (file.byteLength > 1048576) return -15;
+        if (file.byteLength > 3145728) return -15;
         programFileExt = fileType.ext;
       }
     }
@@ -150,7 +150,7 @@ class ProjectService {
         if (!fileType) return -16;
 
         if (!(fileType && (fileType.ext === 'pdf'))) return -16;
-        if (file.byteLength > 1048576) return -17;
+        if (file.byteLength > 3145728) return -17;
         paperFileExt = fileType.ext;
       }
     }
@@ -164,7 +164,7 @@ class ProjectService {
         if (!fileType) return -18;
 
         if (!(fileType && (fileType.ext === 'zip' || fileType.ext === 'rar' || fileType.ext === 'pdf'))) return -18;
-        if (file.byteLength > 1048576) return -19;
+        if (file.byteLength > 3145728) return -19;
         codeFileExt = fileType.ext;
       }
     }
