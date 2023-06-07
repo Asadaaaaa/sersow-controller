@@ -4,11 +4,10 @@ import { DataTypes } from "sequelize";
 class UserRank {
   constructor(server) {
     const table = server.model.db.define('user_rank_view', {
-      follower_rank: DataTypes.DOUBLE(17.10),
+      user_rank: DataTypes.DOUBLE(17.10),
       user_id: DataTypes.STRING(36),
       username: DataTypes.STRING(15),
-      name: DataTypes.STRING(60),
-      name: DataTypes.TEXT,
+      name: DataTypes.STRING(60)
     }, {
       tableName: 'user_rank_view',
       timestamps: false
