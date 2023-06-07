@@ -133,11 +133,14 @@ class Profile {
     };
   }
 
-  async searchProfile(username, limit) {
+  async searchProfile(username, limit, userId) {
     const getDataUserModel = await this.UserModel.findAll({
       where: {
         username: {
           [Op.substring]:  `%${username}%`
+        },
+        id: {
+          [Op.ne]: userId
         }
       },
       order: [
