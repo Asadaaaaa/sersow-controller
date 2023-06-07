@@ -344,6 +344,42 @@ class ProjectService {
     return getManageProject;
   }
 
+  async getLogo(projectId) {
+    const getDataProjectModel = await this.ProjectModel.findOne({
+      where: {
+        id: projectId
+      }
+    });
+
+    if(getDataProjectModel === null) return -1;
+    if(getDataProjectModel.dataValues.logo_path === null) return -2;
+
+    const file = this.server.FS.readFileSync(process.cwd() + getDataProjectModel.dataValues.logo_path);
+    const { mime } = await fileTypeFromBuffer(file);
+
+    return {
+      file, mime
+    };
+  }
+
+  async getThumbnail(projectId) {
+    const getDataProjectThumbnailModel = await this.ProjectThumbnailModel.findOne({
+      where: {
+        project_id: projectId
+      }
+    });
+
+    if(getDataProjectThumbnailModel === null) return -1;
+    if(getDataProjectThumbnailModel.dataValues.method !== 1) return -2;
+
+    const file = this.server.FS.readFileSync(process.cwd() + getDataProjectThumbnailModel.dataValues.url);
+    const { mime } = await fileTypeFromBuffer(file);
+
+    return {
+      file, mime
+    };
+  }
+
   // For You Page Service
   async getForYou(offset, limit) {
     const getDataProjectModel = await this.ProjectModel.findAll({
@@ -363,7 +399,15 @@ class ProjectService {
     });
 
     for(let i in getDataProjectModel) {
+      const getDataUserModel = await this.UserModel.findOne({
+        where: {
+          id: getDataProjectModel[i].dataValues.owner_id
+        }
+      });
+      getDataProjectModel[i].dataValues.owner_name = getDataUserModel.dataValues.name;
+      getDataProjectModel[i].dataValues.owner_username = getDataUserModel.dataValues.username;
       getDataProjectModel[i].dataValues.owner_image = '/profile/get/' + getDataProjectModel[i].dataValues.owner_id;
+
 
       if(getDataProjectModel[i].dataValues.logo) getDataProjectModel[i].dataValues.logo = '/project/get/logo/' + getDataProjectModel[i].dataValues.id;
 
