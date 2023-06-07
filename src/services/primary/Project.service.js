@@ -348,16 +348,14 @@ class ProjectService {
   async getForYou(offset, limit) {
     const getDataProjectModel = await this.ProjectModel.findAll({
       where: {
-        published_datetime: {
-          [Op.lt]: new Date(),
-        },
         published: true
       },
       order: [['published_datetime', 'DESC']],
-      offset,
+      offset: (offset - 1) * limit,
       limit,
       attributes: [
         'id',
+        ['user_id', 'owner_id'],
         'title',
         'description',
         ['logo_path', 'logo']
@@ -365,7 +363,7 @@ class ProjectService {
     });
 
     for(let i in getDataProjectModel) {
-      getDataProjectModel[i].dataValues.owner_image = '/profile/get/' + getDataProjectModel[i].dataValues.user_id;
+      getDataProjectModel[i].dataValues.owner_image = '/profile/get/' + getDataProjectModel[i].dataValues.owner_id;
 
       if(getDataProjectModel[i].dataValues.logo) getDataProjectModel[i].dataValues.logo = '/project/get/logo/' + getDataProjectModel[i].dataValues.id;
 
@@ -375,7 +373,7 @@ class ProjectService {
         }
       });
       
-      if(getDataProjectContributorsModel === null) {
+      if(getDataProjectContributorsModel.length !== 0) {
         const getDataUserModel = await this.UserModel.findAll({
           where: {
             id: {
@@ -387,7 +385,7 @@ class ProjectService {
         getDataProjectModel[i].dataValues.contributors = getDataUserModel.map(val => {
           return {
             user_id: val.dataValues.id,
-            name: val.dataValues.id,
+            name: val.dataValues.name,
             username: val.dataValues.username,
             image: '/profile/get/' + val.dataValues.id
           }
@@ -396,22 +394,29 @@ class ProjectService {
         getDataProjectModel[i].dataValues.contributors = null;
       }
 
-      const getDataProjectCategoryModel = this.ProjectCategoryModel.findAll({
+      const getDataProjectCategoryModel = await this.ProjectCategoryModel.findAll({
         where: {
           project_id: getDataProjectModel[i].dataValues.id
-        }
+        },
       });
       
       if(getDataProjectCategoryModel.length !== 0) {
         const getDataCategoryModel = await this.CategoryModel.findAll({
           where: {
             id: {
-              [Op.in]: getDataProjectCategoryModel.map(val => val.dataValues.id)
+              [Op.in]: getDataProjectCategoryModel.map(val => val.dataValues.category_id)
             }
           }
         });
 
-        getDataProjectModel[i].dataValues.categories = getDataCategoryModel.map(val => val.dataValues.name)
+        for(let j in getDataCategoryModel) {
+          if(getDataCategoryModel[j].dataValues.name === 'Other') {
+            const indexOther = getDataProjectCategoryModel.findIndex(val => val.dataValues.category_id === getDataCategoryModel[j].dataValues.id);
+            getDataCategoryModel[j].dataValues.name = getDataProjectCategoryModel[indexOther].dataValues.other;
+          }
+        }
+
+        getDataProjectModel[i].dataValues.categories = getDataCategoryModel.map(val => val.dataValues.name);
       } else {
         getDataProjectModel[i].dataValues.categories = null;
       }
@@ -434,7 +439,7 @@ class ProjectService {
         getDataProjectModel[i].dataValues.thumbnail = null;
       }
     }
-    console.log(getDataProjectModel)
+    
     return getDataProjectModel;
   }
 
