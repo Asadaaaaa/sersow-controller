@@ -406,7 +406,7 @@ class ProjectService {
       });
       getDataProjectModel[i].dataValues.owner_name = getDataUserModel.dataValues.name;
       getDataProjectModel[i].dataValues.owner_username = getDataUserModel.dataValues.username;
-      getDataProjectModel[i].dataValues.owner_image = '/profile/get/' + getDataProjectModel[i].dataValues.owner_id;
+      getDataProjectModel[i].dataValues.owner_image = '/profile/get/photo/' + getDataProjectModel[i].dataValues.owner_id;
 
 
       if(getDataProjectModel[i].dataValues.logo) getDataProjectModel[i].dataValues.logo = '/project/get/logo/' + getDataProjectModel[i].dataValues.id;
@@ -431,7 +431,7 @@ class ProjectService {
             user_id: val.dataValues.id,
             name: val.dataValues.name,
             username: val.dataValues.username,
-            image: '/profile/get/' + val.dataValues.id
+            image: '/profile/get/photo' + val.dataValues.id
           }
         });
       } else {
