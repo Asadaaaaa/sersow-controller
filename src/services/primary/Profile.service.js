@@ -119,7 +119,10 @@ class Profile {
 
   async getPhotoProfile(userId) {
     const getDataUserModel = await this.UserModel.findOne({
-      where: { id: userId }
+      where: {
+        id: userId,
+        verif_email_upi: true
+      }
     });
 
     if(getDataUserModel === null) return -1;

@@ -85,7 +85,8 @@ class Auth {
     const userModelData = await this.UserModel.findOne({
       where: {
         ...(identity.endsWith('@upi.edu') ? { email_upi: identity } : identity.endsWith('@gmail.com') ? { email_gmail: identity } : { username: identity }),
-        password: md5(password + '-' + this.server.env.HASH_SALT)
+        password: md5(password + '-' + this.server.env.HASH_SALT),
+        verif_email_upi: true
       }
     });
     
