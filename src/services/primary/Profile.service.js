@@ -40,8 +40,6 @@ class Profile {
         
         this.server.FS.writeFileSync(process.cwd() + imagePath, file);
       } else {
-        this.server.FS.unlinkSync(process.cwd() + imagePath);
-
         const defaultImageNumber = Math.floor(Math.random() * 10) + 1;
         imagePath = '/server_data/resources/default_profile_image/' + defaultImageNumber + '.png';
       }
@@ -171,10 +169,19 @@ class Profile {
       ]
     });
 
-    return getDataUserRankModel.map(val => {
-      val.dataValues.image = '/profile/get/photo/' + val.dataValues.id;
-      return val.dataValues;
-    });
+    for(let i in getDataUserRankModel) {
+      const getDataFollowingModel = await this.FollowingModel.findOne({
+        where: {
+          user_id: userId,
+          follow_user_id: getDataUserModel.dataValues.id
+        }
+      });
+
+      getDataUserRankModel[i].dataValues.isFollowed = getDataFollowingModel ? true : false;
+      getDataUserRankModel[i].dataValues.image = '/profile/get/photo/' + val.dataValues.id;
+    }
+
+    return getDataUserRankModel;
   }
 }
 

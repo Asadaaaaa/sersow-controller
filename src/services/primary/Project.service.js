@@ -31,7 +31,6 @@ class ProjectService {
 
   // Functon For Edit Project
   async manageProject(reqData, isPublished) {
-    return -3;
     const {
       id, title, description, categories, otherCtg,
       logo, thumbnail, image1, image2, image3,
