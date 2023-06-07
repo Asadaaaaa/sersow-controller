@@ -144,7 +144,8 @@ class Profile {
         },
         id: {
           [Op.ne]: userId
-        }
+        },
+        verif_email_upi: true
       },
       order: [
         [this.server.model.db.literal(`LOCATE('${username}', username)`)], // Sort by similarity
