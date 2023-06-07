@@ -446,6 +446,32 @@ class ProjectController {
     ));
   }
 
+  // --- Get Logo Project
+  async getLogo(req, res) {
+    const { projectId } = req.params;
+    
+    const getLogoSrv = await this.ProjectService.getLogo(projectId);
+    
+    if(getLogoSrv === -1) return res.status(404).json(this.ResponsePreset.resErr(404, 'Not Found, Project Not Exist', 'service', { code: -1 }));
+    if(getLogoSrv === -2) return res.status(404).json(this.ResponsePreset.resErr(404, 'Not Found, Project Logo Not Exist', 'service', { code: -2 }));
+
+    res.setHeader('Content-Type', getLogoSrv.mime);
+    return res.status(200).send(getLogoSrv.file);
+  }
+
+  // --- Get Logo Project
+  async getThumbnail(req, res) {
+    const { projectId } = req.params;
+    
+    const getThumbnailSrv = await this.ProjectService.getThumbnail(projectId);
+    
+    if(getThumbnailSrv === -1) return res.status(404).json(this.ResponsePreset.resErr(404, 'Not Found, Project Thumbnail Not Exist', 'service', { code: -1 }));
+    if(getThumbnailSrv === -2) return res.status(404).json(this.ResponsePreset.resErr(404, 'Not Found, Project Thumbnail is Using Another Method', 'service', { code: -2 }));
+
+    res.setHeader('Content-Type', getThumbnailSrv.mime);
+    return res.status(200).send(getThumbnailSrv.file);
+  }
+
   // --- Get For You Project
   async getForYou(req, res) {
     const { offset, limit } = req.query;
