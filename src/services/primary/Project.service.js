@@ -431,7 +431,7 @@ class ProjectService {
             user_id: val.dataValues.id,
             name: val.dataValues.name,
             username: val.dataValues.username,
-            image: '/profile/get/' + val.dataValues.id
+            image: '/profile/get/photo' + val.dataValues.id
           }
         });
       } else {
