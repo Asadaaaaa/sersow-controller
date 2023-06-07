@@ -167,12 +167,9 @@ class Profile {
       attributes: [
         ['user_id', 'id'],
         'username',
-        'name',
-        ['image_path', 'image']
+        'name'
       ]
     });
-
-
 
     return getDataUserRankModel.map(val => {
       val.dataValues.image = '/profile/get/photo/' + val.dataValues.id;
