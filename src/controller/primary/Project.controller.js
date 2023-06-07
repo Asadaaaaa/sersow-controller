@@ -472,9 +472,10 @@ class ProjectController {
     return res.status(200).send(getThumbnailSrv.file);
   }
 
-  // --- Get For You Project
+  // --- Get Project For You
   async getForYou(req, res) {
     const { offset, limit } = req.query;
+    const { userId } = req.middlewares.authorization;
 
     if(!offset) return res.status(400).json(this.ResponsePreset.resErr(
       400,
@@ -504,11 +505,22 @@ class ProjectController {
       { code: -3 }
     ));
 
-    const getForYouSrv = await this.ProjectService.getForYou(Number(offset), Number(limit));
+    const getForYouSrv = await this.ProjectService.getForYou(Number(offset), Number(limit), userId);
 
     return res.status(200).json(this.ResponsePreset.resOK(
       'OK',
       getForYouSrv
+    ));
+  }
+
+  // --- Get Project Trends
+  async getProjectTrends(req, res) {
+    const { userId } = req.middlewares.authorization;
+    const getProjectTrendsSrv = await this.ProjectService.getProjectTrends(userId);
+
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      getProjectTrendsSrv
     ));
   }
 }

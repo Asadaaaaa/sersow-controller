@@ -8,6 +8,7 @@ import ProjectContributorsModel from "../../models/ProjectContributors.model.js"
 import ProjectThumbnailModel from "../../models/ProjectThumbnail.model.js";
 import ProjectPreviewModel from "../../models/ProjectPreview.model.js";
 import ProjectFilesModel from "../../models/ProjectFiles.model.js";
+import ProjectRankModel from "../../models/ProjectRank.model.js";
 
 // Library
 import { Op } from "sequelize";
@@ -27,6 +28,7 @@ class ProjectService {
     this.ProjectThumbnailModel = new ProjectThumbnailModel(this.server).table;
     this.ProjectPreviewModel = new ProjectPreviewModel(this.server).table;
     this.ProjectFilesModel = new ProjectFilesModel(this.server).table;
+    this.ProjectRankModel = new ProjectRankModel(this.server).table;
   }
 
   // Functon For Edit Project
@@ -381,7 +383,7 @@ class ProjectService {
   }
 
   // For You Page Service
-  async getForYou(offset, limit) {
+  async getForYou(offset, limit, userId) {
     const getDataProjectModel = await this.ProjectModel.findAll({
       where: {
         published: true
@@ -407,7 +409,7 @@ class ProjectService {
       getDataProjectModel[i].dataValues.owner_name = getDataUserModel.dataValues.name;
       getDataProjectModel[i].dataValues.owner_username = getDataUserModel.dataValues.username;
       getDataProjectModel[i].dataValues.owner_image = '/profile/get/photo/' + getDataProjectModel[i].dataValues.owner_id;
-
+      getDataProjectModel[i].dataValues.isMyProject = getDataProjectModel[i].dataValues.owner_id === userId ? true : false;
 
       if(getDataProjectModel[i].dataValues.logo) getDataProjectModel[i].dataValues.logo = '/project/get/logo/' + getDataProjectModel[i].dataValues.id;
 
@@ -485,6 +487,107 @@ class ProjectService {
     }
     
     return getDataProjectModel;
+  }
+
+  async getProjectTrends(userId) {
+    const getDataProjectRankModel = await this.ProjectRankModel.findAll({
+      attributes: [
+        ['project_id', 'id'],
+        ['user_id', 'owner_id'],
+        'title',
+        'description',
+        ['logo_path', 'logo']
+      ]
+    });
+
+    for(let i in getDataProjectRankModel) {
+      const getDataUserModel = await this.UserModel.findOne({
+        where: {
+          id: getDataProjectRankModel[i].dataValues.owner_id
+        }
+      });
+      getDataProjectRankModel[i].dataValues.owner_name = getDataUserModel.dataValues.name;
+      getDataProjectRankModel[i].dataValues.owner_username = getDataUserModel.dataValues.username;
+      getDataProjectRankModel[i].dataValues.owner_image = '/profile/get/photo/' + getDataProjectRankModel[i].dataValues.owner_id;
+      getDataProjectRankModel[i].dataValues.isMyProject = getDataProjectRankModel[i].dataValues.owner_id === userId ? true : false;
+
+
+      if(getDataProjectRankModel[i].dataValues.logo) getDataProjectRankModel[i].dataValues.logo = '/project/get/logo/' + getDataProjectRankModel[i].dataValues.id;
+
+      const getDataProjectContributorsModel = await this.ProjectContributorsModel.findAll({
+        where: {
+          project_id: getDataProjectRankModel[i].dataValues.id
+        }
+      });
+      
+      if(getDataProjectContributorsModel.length !== 0) {
+        const getDataUserModel = await this.UserModel.findAll({
+          where: {
+            id: {
+              [Op.in]: getDataProjectContributorsModel.map(val => val.dataValues.user_id)
+            }
+          }
+        });
+
+        getDataProjectRankModel[i].dataValues.contributors = getDataUserModel.map(val => {
+          return {
+            user_id: val.dataValues.id,
+            name: val.dataValues.name,
+            username: val.dataValues.username,
+            image: '/profile/get/photo' + val.dataValues.id
+          }
+        });
+      } else {
+        getDataProjectRankModel[i].dataValues.contributors = null;
+      }
+
+      const getDataProjectCategoryModel = await this.ProjectCategoryModel.findAll({
+        where: {
+          project_id: getDataProjectRankModel[i].dataValues.id
+        },
+      });
+      
+      if(getDataProjectCategoryModel.length !== 0) {
+        const getDataCategoryModel = await this.CategoryModel.findAll({
+          where: {
+            id: {
+              [Op.in]: getDataProjectCategoryModel.map(val => val.dataValues.category_id)
+            }
+          }
+        });
+
+        for(let j in getDataCategoryModel) {
+          if(getDataCategoryModel[j].dataValues.name === 'Other') {
+            const indexOther = getDataProjectCategoryModel.findIndex(val => val.dataValues.category_id === getDataCategoryModel[j].dataValues.id);
+            getDataCategoryModel[j].dataValues.name = getDataProjectCategoryModel[indexOther].dataValues.other;
+          }
+        }
+
+        getDataProjectRankModel[i].dataValues.categories = getDataCategoryModel.map(val => val.dataValues.name);
+      } else {
+        getDataProjectRankModel[i].dataValues.categories = null;
+      }
+
+      const getDataProjectThumbnailModel = await this.ProjectThumbnailModel.findOne({
+        project_id: getDataProjectRankModel[i].dataValues.id
+      });
+      
+      if(getDataProjectThumbnailModel !== null) {
+        getDataProjectRankModel[i].dataValues.thumbnail = {};
+
+        if(getDataProjectThumbnailModel.dataValues.method === 1) {
+          getDataProjectRankModel[i].dataValues.thumbnail.isUrl = false;
+          getDataProjectRankModel[i].dataValues.thumbnail.data = '/project/get/thumbnail/' + getDataProjectRankModel[i].dataValues.id;
+        } else {
+          getDataProjectRankModel[i].dataValues.thumbnail.isUrl = true;
+          getDataProjectRankModel[i].dataValues.thumbnail.data = getDataProjectThumbnailModel.dataValues.url;
+        }
+      } else {
+        getDataProjectRankModel[i].dataValues.thumbnail = null;
+      }
+    }
+
+    return getDataProjectRankModel;
   }
 
   async getCategoryProject() {
