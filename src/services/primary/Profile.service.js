@@ -176,14 +176,14 @@ class Profile {
         const getDataFollowingModel = await this.FollowingModel.findOne({
           where: {
             user_id: userId,
-            follow_user_id: getDataUserModel.dataValues.id
+            follow_user_id: getDataUserRankModel[i].dataValues.id
           }
         });
   
         if(getDataFollowingModel !== null) getDataUserRankModel[i].dataValues.isFollowed = true;
       }
       
-      getDataUserRankModel[i].dataValues.image = '/profile/get/photo/' + val.dataValues.id;
+      getDataUserRankModel[i].dataValues.image = '/profile/get/photo/' + getDataUserRankModel[i].dataValues.id;
     }
 
     return getDataUserRankModel;
