@@ -160,7 +160,7 @@ class Profile {
     return newData;
   }
 
-  async getTrendsUsers() {
+  async getTrendsUsers(userId) {
     const getDataUserRankModel = await this.UserRank.findAll({
       attributes: [
         ['user_id', 'id'],
@@ -170,14 +170,19 @@ class Profile {
     });
 
     for(let i in getDataUserRankModel) {
-      const getDataFollowingModel = await this.FollowingModel.findOne({
-        where: {
-          user_id: userId,
-          follow_user_id: getDataUserModel.dataValues.id
-        }
-      });
+      getDataUserRankModel[i].dataValues.isFollowed = false;
 
-      getDataUserRankModel[i].dataValues.isFollowed = getDataFollowingModel ? true : false;
+      if(userId) {
+        const getDataFollowingModel = await this.FollowingModel.findOne({
+          where: {
+            user_id: userId,
+            follow_user_id: getDataUserModel.dataValues.id
+          }
+        });
+  
+        if(getDataFollowingModel !== null) getDataUserRankModel[i].dataValues.isFollowed = true;
+      }
+      
       getDataUserRankModel[i].dataValues.image = '/profile/get/photo/' + val.dataValues.id;
     }
 
