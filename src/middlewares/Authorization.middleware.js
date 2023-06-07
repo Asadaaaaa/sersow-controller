@@ -17,6 +17,7 @@ class Authorization {
       if(!token || token === 'undefined') {
         if(req.path.endsWith('/profile/get/' + req.params.username)) return next();
         if(req.path.endsWith('/profile/trends/users')) return next();
+        if(req.path.endsWith('/profile/search/username/' + req.params.username)) return next();
 
         return res.status(401).json(this.ResponsePreset.resErr(
           401,

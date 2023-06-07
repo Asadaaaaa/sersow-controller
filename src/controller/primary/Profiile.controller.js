@@ -96,6 +96,7 @@ class Profile {
   async searchProfile(req, res) {
     const { username } = req.params;
     const { limit } = req.query;
+    const { userId } = req.middlewares.authorization;
     
     if(!username) return res.status(400).json(this.ResponsePreset.resErr(
       400,
@@ -117,7 +118,7 @@ class Profile {
       'service'
     ));
 
-    const searchProfileSrv = await this.ProfileService.searchProfile(username.toLowerCase(), Number(limit));
+    const searchProfileSrv = await this.ProfileService.searchProfile(username.toLowerCase(), Number(limit), userId);
 
     return res.status(200).json(this.ResponsePreset.resOK(
       'OK',
