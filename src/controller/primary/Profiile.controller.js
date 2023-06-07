@@ -126,7 +126,9 @@ class Profile {
   }
 
   async getTrendsUsers(req, res) {
-    const getTrendsUsersSrv = await this.ProfileService.getTrendsUsers();
+    const { userId } = req.middlewares.authorization;
+
+    const getTrendsUsersSrv = await this.ProfileService.getTrendsUsers(userId);
     
     return res.status(200).json(this.ResponsePreset.resOK(
       'OK',
