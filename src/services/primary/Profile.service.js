@@ -170,7 +170,9 @@ class Profile {
     });
 
     for(let i in getDataUserRankModel) {
+      getDataUserRankModel[i].dataValues.image = '/profile/get/photo/' + getDataUserRankModel[i].dataValues.id;
       getDataUserRankModel[i].dataValues.isFollowed = false;
+      getDataUserRankModel[i].dataValues.isMyProfile = getDataUserRankModel[i].dataValues.id === userId ? true : false;
 
       if(userId) {
         const getDataFollowingModel = await this.FollowingModel.findOne({
@@ -183,7 +185,6 @@ class Profile {
         if(getDataFollowingModel !== null) getDataUserRankModel[i].dataValues.isFollowed = true;
       }
       
-      getDataUserRankModel[i].dataValues.image = '/profile/get/photo/' + getDataUserRankModel[i].dataValues.id;
     }
 
     return getDataUserRankModel;
