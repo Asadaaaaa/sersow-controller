@@ -385,7 +385,7 @@ class ProjectService {
     });
 
     if(getDataProjectModel === null) return -1;
-    if(getDataProjectModel.dataValues.published === false && getDataProjectModel.dataValues.user_id !== userId) return -2;
+    if(getDataProjectModel.dataValues.published === false && getDataProjectModel.dataValues.user_id !== userId) return -1;
 
     getDataProjectModel.dataValues.isMyProject = getDataProjectModel.dataValues.owner_id === userId ? true : false;
     getDataProjectModel.dataValues.logo = getDataProjectModel.dataValues.logo !== null ? '/project/get/logo/' + projectId : null;

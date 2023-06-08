@@ -453,7 +453,14 @@ class ProjectController {
     const { userId } = req.middlewares.authorization;
 
     const getDetailsSrv = await this.ProjectService.getDetails(projectId, userId);
-    
+
+    if(getDetailsSrv === -1) return res.status(404).json(this.ResponsePreset.resErr(
+      404,
+      'Not Found, Project Not Found',
+      'service',
+      { code: -1 }
+    ));
+
     return res.status(200).json(this.ResponsePreset.resOK(
       'OK',
       getDetailsSrv
