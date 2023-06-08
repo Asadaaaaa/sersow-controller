@@ -377,6 +377,7 @@ class ProjectService {
       attributes: [
         'id',
         ['user_id', 'owner_id'],
+        'title',
         'description',
         ['logo_path', 'logo'],
         'published',
@@ -390,6 +391,17 @@ class ProjectService {
     getDataProjectModel.dataValues.isMyProject = getDataProjectModel.dataValues.owner_id === userId ? true : false;
     getDataProjectModel.dataValues.logo = getDataProjectModel.dataValues.logo !== null ? '/project/get/logo/' + projectId : null;
     getDataProjectModel.dataValues.published_datetime = new Date(getDataProjectModel.dataValues.published_datetime).getTime();
+    
+    const getDataUserModel = await this.UserModel.findOne({
+      where: {
+        id: getDataProjectModel.dataValues.owner_id
+      }
+    });
+    
+    getDataProjectModel.dataValues.owner_name = getDataUserModel.dataValues.name;
+    getDataProjectModel.dataValues.owner_username = getDataUserModel.dataValues.username;
+    getDataProjectModel.dataValues.owner_image = '/profile/get/photo/' + getDataProjectModel.dataValues.owner_id;
+    
     
     const getDataProjectCategoryModel = await this.ProjectCategoryModel.findAll({
       where: {
@@ -427,10 +439,10 @@ class ProjectService {
     });
 
     if(getDataProjectThumbnailModel !== null) {
-      if(getDataProjectModel.dataValues.method === 1) {
-        getDataProjectModel.dataValues.thumbnail = '/project/get/thumbnail/' + projectId;
+      getDataProjectModel.dataValues.thumbnail = {
+        isUrl: getDataProjectThumbnailModel.dataValues.method === 1 ? false : true,
+        url: getDataProjectThumbnailModel.dataValues.method === 1 ?  '/project/get/thumbnail/' + projectId : getDataProjectThumbnailModel.url
       }
-      getDataProjectModel.dataValues.thumbnail = getDataProjectThumbnailModel.url;
     } else {
       getDataProjectModel.dataValues.thumbnail = null;
     }
@@ -447,6 +459,54 @@ class ProjectService {
       });
     } else {
       getDataProjectModel.dataValues.preview = null;
+    }
+
+    const getDataProjectContributorsModel = await this.ProjectContributorsModel.findAll({
+      where: {
+        project_id: getDataProjectModel.dataValues.id
+      }
+    });
+
+    if(getDataProjectContributorsModel.length !== 0) {
+      const getDataUserModel = await this.UserModel.findAll({
+        where: {
+          id: {
+            [Op.in]: getDataProjectContributorsModel.map(val => val.dataValues.user_id)
+          }
+        }
+      });
+      
+      if(userId) {
+        getDataProjectModel.dataValues.contributors = [];
+        for(let j in getDataUserModel) {
+          const getDataFollowingModel = await this.FollowingModel.findOne({
+            where: {
+              user_id: userId,
+              follow_user_id: getDataUserModel[j].dataValues.id
+            }
+          });
+
+          getDataProjectModel.dataValues.contributors.push({
+            user_id: getDataUserModel[j].dataValues.id,
+            name: getDataUserModel[j].dataValues.name,
+            username: getDataUserModel[j].dataValues.username,
+            image: '/profile/get/photo' + getDataUserModel[j].dataValues.id,
+            isFollowed: getDataFollowingModel !== null ? true : false
+          });
+        }
+      } else {
+        getDataProjectModel.dataValues.contributors = getDataUserModel.map(val => {
+          return {
+            user_id: val.dataValues.id,
+            name: val.dataValues.name,
+            username: val.dataValues.username,
+            image: '/profile/get/photo' + val.dataValues.id,
+            isFollowed: false
+          }
+        });
+      }
+    } else {
+      getDataProjectModel.dataValues.contributors = null;
     }
     
     const getDataProjectTagsModel = await this.ProjectTagsModel.findAll({
@@ -470,9 +530,9 @@ class ProjectService {
       order: [['type', 'ASC']]
     });
 
-    getDataProjectFilesModel.program = null;
-    getDataProjectFilesModel.paper = null;
-    getDataProjectFilesModel.code = null;
+    getDataProjectModel.dataValues.program = null;
+    getDataProjectModel.dataValues.paper = null;
+    getDataProjectModel.dataValues.code = null;
 
     if(getDataProjectFilesModel !== null) {
       getDataProjectFilesModel.forEach(val => {
@@ -526,8 +586,6 @@ class ProjectService {
     } else {
       getDataProjectModel.dataValues.isLiked = false;
     }
-    
-
 
     const getDataProjectComments = await this.ProjectCommentsModel.findAll({
       where: {
