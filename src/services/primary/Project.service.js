@@ -116,7 +116,7 @@ class ProjectService {
       if (!fileType) return -10;
 
       if (!(fileType && (fileType.ext === 'jpeg' || fileType.ext === 'jpg' || fileType.ext === 'png'))) return -10;
-      if (file.byteLength > 1048576) return -11;
+      if (image2File.byteLength > 1048576) return -11;
       image2Ext = fileType.ext;
     }
 
@@ -128,7 +128,7 @@ class ProjectService {
       if (!fileType) return -12;
 
       if (!(fileType && (fileType.ext === 'jpeg' || fileType.ext === 'jpg' || fileType.ext === 'png'))) return -12;
-      if (image2File.byteLength > 1048576) return -13;
+      if (image3File.byteLength > 1048576) return -13;
       image3Ext = fileType.ext;
     }
 
@@ -516,14 +516,18 @@ class ProjectService {
         getDataProjectModel[i].dataValues.thumbnail = null;
       }
 
-      const getDataProjectLikesModel = await this.ProjectLikesModel.findOne({
-        where: {
-          project_id: getDataProjectModel[i].dataValues.id,
-          user_id: userId
-        }
-      });
-
-      getDataProjectModel[i].dataValues.isLiked = getDataProjectLikesModel !== null && userId ? true : false;
+      if(userId) {
+        const getDataProjectLikesModel = await this.ProjectLikesModel.findOne({
+          where: {
+            project_id: getDataProjectModel[i].dataValues.id,
+            user_id: userId
+          }
+        });
+  
+        getDataProjectModel[i].dataValues.isLiked = getDataProjectLikesModel !== null ? true : false;
+      } else {
+        getDataProjectModel[i].dataValues.isLiked = false;
+      }
     }
     
     return getDataProjectModel;
@@ -628,14 +632,18 @@ class ProjectService {
         getDataProjectRankModel[i].dataValues.thumbnail = null;
       }
 
-      const getDataProjectLikesModel = await this.ProjectLikesModel.findOne({
-        where: {
-          project_id: getDataProjectRankModel[i].dataValues.id,
-          user_id: userId
-        }
-      });
-  
-      getDataProjectRankModel[i].dataValues.isLiked = getDataProjectLikesModel !== null && userId ? true : false;
+      if(userId) {
+        const getDataProjectLikesModel = await this.ProjectLikesModel.findOne({
+          where: {
+            project_id: getDataProjectRankModel[i].dataValues.id,
+            user_id: userId
+          }
+        });
+    
+        getDataProjectRankModel[i].dataValues.isLiked = getDataProjectLikesModel !== null ? true : false;
+      } else {
+        getDataProjectRankModel[i].dataValues.isLiked = false;
+      }
     }
 
     return getDataProjectRankModel;
