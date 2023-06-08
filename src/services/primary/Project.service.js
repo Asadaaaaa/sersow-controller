@@ -224,7 +224,7 @@ class ProjectService {
         });
   
         await this.ProjectCategoryModel.create(
-          { project_id: addDataProjectModel[0].dataValues.id, category_id: getDataCategoryModel.dataValues.id },
+          { project_id: addDataProjectModel[0].dataValues.id, category_id: getDataCategoryModel.dataValues.id, other: otherCtg },
           { transaction }
         );
       }
