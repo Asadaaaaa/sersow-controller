@@ -116,7 +116,7 @@ class ProjectService {
       if (!fileType) return -10;
 
       if (!(fileType && (fileType.ext === 'jpeg' || fileType.ext === 'jpg' || fileType.ext === 'png'))) return -10;
-      if (file.byteLength > 1048576) return -11;
+      if (image2File.byteLength > 1048576) return -11;
       image2Ext = fileType.ext;
     }
 
@@ -128,7 +128,7 @@ class ProjectService {
       if (!fileType) return -12;
 
       if (!(fileType && (fileType.ext === 'jpeg' || fileType.ext === 'jpg' || fileType.ext === 'png'))) return -12;
-      if (image2File.byteLength > 1048576) return -13;
+      if (image3File.byteLength > 1048576) return -13;
       image3Ext = fileType.ext;
     }
 
