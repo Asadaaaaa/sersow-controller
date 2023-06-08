@@ -641,10 +641,13 @@ class ProjectService {
   }
 
   // For You Page Service
-  async getForYou(offset, limit, userId) {
+  async getForYou(offset, limit, userId, following) {
     const getDataProjectModel = await this.ProjectModel.findAll({
       where: {
-        published: true
+        published: true,
+        ...(following === "true" && userId ? { user_id: {
+          [Op.in]: this.server.model.db.literal(`(SELECT follow_user_id FROM following WHERE user_id = '${userId}')`)
+        }} : {})
       },
       order: [['published_datetime', 'DESC']],
       offset: (offset - 1) * limit,
