@@ -28,6 +28,7 @@ class ProjectController {
 
   // --- Draft Project
   async draftProject(req, res) {
+    const { userId } = req.middlewares.authorization;
     const schemeValidate = this.Ajv.compile(this.DataScheme.project);
 
     if(!schemeValidate(req.body)) return res.status(400).json(this.ResponsePreset.resErr(
@@ -37,7 +38,7 @@ class ProjectController {
       schemeValidate.errors[0]
     ));
 
-    const getDraftProjectSrv = await this.ProjectService.draftProject(req.body);
+    const getDraftProjectSrv = await this.ProjectService.draftProject(req.body, userId);
 
     switch(getDraftProjectSrv) {
       case -1: {
@@ -238,6 +239,7 @@ class ProjectController {
 
   // --- Publish Project
   async publishProject(req, res) {
+    const { userId } = req.middlewares.authorization;
     const schemeValidate = this.Ajv.compile(this.DataScheme.project);
 
     if(!schemeValidate(req.body)) return res.status(400).json(this.ResponsePreset.resErr(
@@ -247,7 +249,7 @@ class ProjectController {
       schemeValidate.errors[0]
     ));
 
-    const getPublishProjectSrv = await this.ProjectService.PublishProject(req.body);
+    const getPublishProjectSrv = await this.ProjectService.PublishProject(req.body, userId);
 
     switch(getPublishProjectSrv) {
       case -1: {
