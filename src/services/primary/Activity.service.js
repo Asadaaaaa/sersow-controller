@@ -2,6 +2,7 @@ import UserModel from "../../models/User.model.js";
 import FollowingModel from "../../models/Following.model.js";
 import ProjectModel from "../../models/Project.model.js";
 import ProjectLikesModel from "../../models/ProjectLikes.model.js";
+import ProjectCommentsModel from "../../models/ProjectComments.model.js";
 
 class ActivityService {
   constructor(server) {
@@ -10,7 +11,8 @@ class ActivityService {
     this.UserModel = new UserModel(this.server).table;
     this.FollowingModel = new FollowingModel(this.server).table;
     this.ProjectModel = new ProjectModel(this.server).table;
-    this.ProjectLikesModel = new ProjectLikesModel(this.server).table;
+    this.ProjectModel = new ProjectModel(this.server).table;
+    this.ProjectCommentsModel = new ProjectCommentsModel(this.server).table;
   }
 
   // Follow Fungtion Service
@@ -93,6 +95,49 @@ class ActivityService {
     await this.ProjectLikesModel.destroy({
       where: {
         id: getDataProjectLikes.dataValues.id
+      }
+    });
+    return 1;
+  }
+
+  // Project Comment Service
+  async commentProject(projectId, userId, comment) {
+    const getDataProjectModel = await this.ProjectModel.findOne({
+      where: {
+        id: projectId,
+        published: true
+      }
+    });
+
+    if(getDataProjectModel === null) return -1;
+    
+    const getDataProjectCommentsModel = await this.ProjectCommentsModel.findAll({
+      where: {
+        project_id: projectId,
+        user_id: userId
+      }
+    });
+
+    if(getDataProjectCommentsModel.length === 3) return -2;
+
+    await this.ProjectCommentsModel.create({ project_id: projectId, user_id: userId, comment, createdAt: new Date() });
+    return 1;
+  }
+  
+  async delCommentProject(projectId, userId, commentId) {
+    const getDataProjectCommentsModel = await this.ProjectCommentsModel.findOne({
+      where: {
+        id: commentId,
+        project_id: projectId,
+        user_id: userId
+      }
+    });
+
+    if(getDataProjectCommentsModel === null) return -1;
+
+    await this.ProjectCommentsModel.destroy({
+      where: {
+        id: commentId
       }
     });
     return 1;
