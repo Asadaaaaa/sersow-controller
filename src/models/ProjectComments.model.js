@@ -1,9 +1,9 @@
 // Library
 import { DataTypes } from "sequelize";
 
-class ProjectTags {
+class ProjectComments {
   constructor(server) {
-    const table = server.model.db.define('project_tags', {
+    const table = server.model.db.define('project_comments', {
       id: {
         type: DataTypes.STRING(36),
         defaultValue: DataTypes.UUIDV4,
@@ -12,15 +12,22 @@ class ProjectTags {
       },
       project_id: {
         type: DataTypes.STRING(36),
-        defaultValue: DataTypes.UUIDV4,
         allowNull: false
       },
-      name: {
-        type: DataTypes.STRING(12),
+      user_id: {
+        type: DataTypes.STRING(36),
+        allowNull: false
+      },
+      comment: {
+        type: DataTypes.STRING(200),
+        allowNull: false
+      },
+      createdAt: {
+        type: DataTypes.DATE,
         allowNull: false
       }
     }, {
-      tableName: 'project_tags',
+      tableName: 'project_comments',
       timestamps: false
     });
 
@@ -28,4 +35,4 @@ class ProjectTags {
   }
 }
 
-export default ProjectTags;
+export default ProjectComments;

@@ -448,6 +448,18 @@ class ProjectController {
     ));
   }
 
+  async getDetails(req, res) {
+    const { projectId } = req.params;
+    const { userId } = req.middlewares.authorization;
+
+    const getDetailsSrv = await this.ProjectService.getDetails(projectId, userId);
+    
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      getDetailsSrv
+    ))
+  }
+
   // --- Get Logo Project
   async getLogo(req, res) {
     const { projectId } = req.params;
@@ -529,7 +541,7 @@ class ProjectController {
 
   // --- Get Project For You
   async getForYou(req, res) {
-    const { offset, limit } = req.query;
+    const { offset, limit, following } = req.query;
     const { userId } = req.middlewares.authorization;
 
     if(!offset) return res.status(400).json(this.ResponsePreset.resErr(
@@ -560,7 +572,7 @@ class ProjectController {
       { code: -3 }
     ));
 
-    const getForYouSrv = await this.ProjectService.getForYou(Number(offset), Number(limit), userId);
+    const getForYouSrv = await this.ProjectService.getForYou(Number(offset), Number(limit), userId, following);
 
     return res.status(200).json(this.ResponsePreset.resOK(
       'OK',
