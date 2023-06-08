@@ -189,7 +189,7 @@ class ProjectService {
     const transaction = await this.server.model.db.transaction();
     try {
       const addDataProjectModel = await this.ProjectModel.upsert(
-        { ...(id !== null ? { id } : {}), user_id: userId, title, description, published: false, published_datetime: new Date() },
+        { ...(id !== null ? { id } : {}), user_id: userId, title, description, published: isPublished, published_datetime: new Date() },
         { transaction }
       );
       
@@ -408,6 +408,31 @@ class ProjectService {
 
     return {
       file, mime
+    };
+  }
+
+  async getFiles(type, projectId) {
+    const getDataProjectFiles = await this.ProjectFilesModel.findOne({
+      where: {
+        project_id: projectId,
+        type
+      }
+    });
+
+    if(getDataProjectFiles === null) return -1;
+    if(getDataProjectFiles.dataValues.method !== 1) return -2;
+
+    const getDataProjectModel = await this.ProjectModel.findOne({
+      where: {
+        id: projectId
+      }
+    });
+
+    const file = this.server.FS.readFileSync(process.cwd() + getDataProjectFiles.dataValues.url);
+    const { mime } = await fileTypeFromBuffer(file);
+    
+    return {
+      file, mime, name: getDataProjectModel.dataValues.title + " - " + ( type === 1 ? "Program" : type === 2 ? "Paper" : type === 3 ? "Code" : "" ) + "." + mime.split('/')[1]
     };
   }
 
