@@ -516,14 +516,18 @@ class ProjectService {
         getDataProjectModel[i].dataValues.thumbnail = null;
       }
 
-      const getDataProjectLikesModel = await this.ProjectLikesModel.findOne({
-        where: {
-          project_id: getDataProjectModel[i].dataValues.id,
-          user_id: userId
-        }
-      });
-
-      getDataProjectModel[i].dataValues.isLiked = getDataProjectLikesModel !== null && userId ? true : false;
+      if(userId) {
+        const getDataProjectLikesModel = await this.ProjectLikesModel.findOne({
+          where: {
+            project_id: getDataProjectModel[i].dataValues.id,
+            user_id: userId
+          }
+        });
+  
+        getDataProjectModel[i].dataValues.isLiked = getDataProjectLikesModel !== null ? true : false;
+      } else {
+        getDataProjectModel[i].dataValues.isLiked = false;
+      }
     }
     
     return getDataProjectModel;
@@ -628,14 +632,18 @@ class ProjectService {
         getDataProjectRankModel[i].dataValues.thumbnail = null;
       }
 
-      const getDataProjectLikesModel = await this.ProjectLikesModel.findOne({
-        where: {
-          project_id: getDataProjectRankModel[i].dataValues.id,
-          user_id: userId
-        }
-      });
-  
-      getDataProjectRankModel[i].dataValues.isLiked = getDataProjectLikesModel !== null && userId ? true : false;
+      if(userId) {
+        const getDataProjectLikesModel = await this.ProjectLikesModel.findOne({
+          where: {
+            project_id: getDataProjectRankModel[i].dataValues.id,
+            user_id: userId
+          }
+        });
+    
+        getDataProjectRankModel[i].dataValues.isLiked = getDataProjectLikesModel !== null ? true : false;
+      } else {
+        getDataProjectRankModel[i].dataValues.isLiked = false;
+      }
     }
 
     return getDataProjectRankModel;
