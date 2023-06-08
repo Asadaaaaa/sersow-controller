@@ -9,6 +9,7 @@ import ProjectThumbnailModel from "../../models/ProjectThumbnail.model.js";
 import ProjectPreviewModel from "../../models/ProjectPreview.model.js";
 import ProjectFilesModel from "../../models/ProjectFiles.model.js";
 import ProjectRankModel from "../../models/ProjectRank.model.js";
+import ProjectLikesModel from "../../models/ProjectLikes.model.js";
 
 // Library
 import { Op } from "sequelize";
@@ -29,6 +30,7 @@ class ProjectService {
     this.ProjectPreviewModel = new ProjectPreviewModel(this.server).table;
     this.ProjectFilesModel = new ProjectFilesModel(this.server).table;
     this.ProjectRankModel = new ProjectRankModel(this.server).table;
+    this.ProjectLikesModel = new ProjectLikesModel(this.server).table;
   }
 
   // Functon For Edit Project
@@ -390,6 +392,25 @@ class ProjectService {
     };
   }
 
+  // Get Preview Image Service
+  async getPreviewImage(sort, projectId) {
+    const getDataProjectPreviewModel = await this.ProjectPreviewModel.findOne({
+      where: {
+        project_id: projectId,
+        sort
+      }
+    });
+
+    if(getDataProjectPreviewModel === null) return -1;
+
+    const file = this.server.FS.readFileSync(process.cwd() + getDataProjectPreviewModel.dataValues.path);
+    const { mime } = await fileTypeFromBuffer(file);
+
+    return {
+      file, mime
+    };
+  }
+
   // For You Page Service
   async getForYou(offset, limit, userId) {
     const getDataProjectModel = await this.ProjectModel.findAll({
@@ -476,7 +497,9 @@ class ProjectService {
       }
 
       const getDataProjectThumbnailModel = await this.ProjectThumbnailModel.findOne({
-        project_id: getDataProjectModel[i].dataValues.id
+        where: {
+          project_id: getDataProjectModel[i].dataValues.id
+        }
       });
       
       if(getDataProjectThumbnailModel !== null) {
@@ -492,6 +515,15 @@ class ProjectService {
       } else {
         getDataProjectModel[i].dataValues.thumbnail = null;
       }
+
+      const getDataProjectLikesModel = await this.ProjectLikesModel.findOne({
+        where: {
+          project_id: getDataProjectModel[i].dataValues.id,
+          user_id: userId
+        }
+      });
+
+      getDataProjectModel[i].dataValues.isLiked = getDataProjectLikesModel !== null && userId ? true : false;
     }
     
     return getDataProjectModel;
@@ -577,7 +609,9 @@ class ProjectService {
       }
 
       const getDataProjectThumbnailModel = await this.ProjectThumbnailModel.findOne({
-        project_id: getDataProjectRankModel[i].dataValues.id
+        where: {
+          project_id: getDataProjectRankModel[i].dataValues.id
+        }
       });
       
       if(getDataProjectThumbnailModel !== null) {
@@ -593,6 +627,15 @@ class ProjectService {
       } else {
         getDataProjectRankModel[i].dataValues.thumbnail = null;
       }
+
+      const getDataProjectLikesModel = await this.ProjectLikesModel.findOne({
+        where: {
+          project_id: getDataProjectRankModel[i].dataValues.id,
+          user_id: userId
+        }
+      });
+  
+      getDataProjectRankModel[i].dataValues.isLiked = getDataProjectLikesModel !== null && userId ? true : false;
     }
 
     return getDataProjectRankModel;
