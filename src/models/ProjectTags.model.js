@@ -18,10 +18,6 @@ class ProjectTags {
       name: {
         type: DataTypes.STRING(12),
         allowNull: false
-      },
-      other: {
-        type: DataTypes.STRING(15),
-        allowNull: true
       }
     }, {
       tableName: 'project_tags',
