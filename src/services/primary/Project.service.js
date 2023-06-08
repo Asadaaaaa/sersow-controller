@@ -280,7 +280,7 @@ class ProjectService {
       if (image2) {
         const imagePath = '/server_data/project/preview/' + addDataProjectModel[0].dataValues.id + '-2.' + image2Ext;
   
-        this.server.FS.writeFileSync(process.cwd() + imagePath, image3File);
+        this.server.FS.writeFileSync(process.cwd() + imagePath, image2File);
         await this.ProjectPreviewModel.create(
           { project_id: addDataProjectModel[0].dataValues.id, sort: 2,  path: imagePath },
           { transaction }
