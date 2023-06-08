@@ -55,7 +55,14 @@ class ProjectValidator {
           data: {
             type: 'string',
             nullable: false,
-            if: { properties: { isUrl: { const: true } } },
+            if: {
+              properties: {
+                isUrl: {
+                  const: true
+                }
+              },
+              type: 'object'
+            },
             then: {
               maxLength: 50,
               minLength: 11,
