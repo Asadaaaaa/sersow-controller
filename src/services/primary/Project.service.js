@@ -190,15 +190,17 @@ class ProjectService {
         { ...(id !== null ? { id } : {}), user_id: userId, title, description, published: false, published_datetime: new Date() },
         { transaction }
       );
-  
-      const projectCategories = categories.map(categoryId => ({
-        project_id: addDataProjectModel[0].dataValues.id,
-        category_id: categoryId
-      }));
-  
-      await this.ProjectCategoryModel.bulkCreate(projectCategories, {
-        transaction
-      });
+      
+      if(categories !== null) {
+        const projectCategories = categories.map(categoryId => ({
+          project_id: addDataProjectModel[0].dataValues.id,
+          category_id: categoryId
+        }));
+    
+        await this.ProjectCategoryModel.bulkCreate(projectCategories, {
+          transaction
+        });
+      }
   
       if (otherCtg !== null) {
         const getDataCategoryModel = await this.CategoryModel.findOne({
@@ -211,15 +213,17 @@ class ProjectService {
           { transaction }
         );
       }
-  
-      const projectTags = tags.map((name) => {
-        return {
-          project_id: addDataProjectModel[0].dataValues.id,
-          name
-        }
-      });
-  
-      await this.ProjectTagsModel.bulkCreate(projectTags, { transaction });
+      
+      if(tags !== null) {
+        const projectTags = tags.map((name) => {
+          return {
+            project_id: addDataProjectModel[0].dataValues.id,
+            name
+          }
+        });
+    
+        await this.ProjectTagsModel.bulkCreate(projectTags, { transaction });
+      }
   
       if (logo) {
         const imagePath = '/server_data/project/logo/' + addDataProjectModel[0].dataValues.id + '.' + logoExt;
