@@ -37,8 +37,8 @@ class ProfileValidator {
     properties: {
       username: {
         type: 'string',
-        maxLength: 1,
-        minLength: 15,
+        maxLength: 15,
+        minLength: 1,
         pattern: '^[a-zA-Z0-9_]{1,15}$',
         nullable: false
       }

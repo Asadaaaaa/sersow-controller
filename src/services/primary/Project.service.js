@@ -280,7 +280,7 @@ class ProjectService {
       if (image2) {
         const imagePath = '/server_data/project/preview/' + addDataProjectModel[0].dataValues.id + '-2.' + image2Ext;
   
-        this.server.FS.writeFileSync(process.cwd() + imagePath, image2Ext);
+        this.server.FS.writeFileSync(process.cwd() + imagePath, image3File);
         await this.ProjectPreviewModel.create(
           { project_id: addDataProjectModel[0].dataValues.id, sort: 2,  path: imagePath },
           { transaction }
@@ -450,7 +450,10 @@ class ProjectService {
     const getDataProjectPreviewModel = await this.ProjectPreviewModel.findAll({
       where: {
         project_id: projectId
-      }
+      },
+      order: [
+        ['sort', 'ASC']
+      ]
     });
 
     if(getDataProjectPreviewModel.length !== 0) {
@@ -605,12 +608,13 @@ class ProjectService {
       });
 
       getDataProjectModel.dataValues.comments.push({
-        id: getDataUserModel.dataValues.id,
+        userId: getDataUserModel.dataValues.id,
         name: getDataUserModel.dataValues.name,
         username: getDataUserModel.dataValues.username,
         gender: getDataUserModel.dataValues.gender,
         image: '/profile/get/photo/' + getDataUserModel.dataValues.id,
         isMyComment: userId === getDataUserModel.dataValues.id ? true : false,
+        commentId: getDataProjectComments[i].dataValues.id,
         comment: getDataProjectComments[i].dataValues.comment
       });
     }

@@ -1,5 +1,9 @@
 import ResponsePreset from '../../helpers/ResponsePreset.helper.js';
+import ActivityValidator from '../../validators/primary/Activity.validator.js';
 import ActivityService from '../../services/primary/Activity.service.js';
+
+// Library
+import Ajv from 'ajv';
 
 class ActivityController {
 
@@ -7,6 +11,8 @@ class ActivityController {
     this.server = server;
 
     this.ResponsePreset = new ResponsePreset();
+    this.Ajv = new Ajv();
+    this.ActivityValidator = new ActivityValidator();
     this.ActivityService = new ActivityService(this.server);
   }
 
@@ -115,6 +121,61 @@ class ActivityController {
       'Forbidden, Your Like Not Found',
       'service',
       { code: -2 }
+    ));
+
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      null
+    ));
+  }
+
+  async commentProject(req, res) {
+    const schemeValidate = this.Ajv.compile(this.ActivityValidator.commentProject);
+    
+    if(!schemeValidate(req.body)) return res.status(400).json(this.ResponsePreset.resErr(
+      400,
+      schemeValidate.errors[0].message,
+      'validator',
+      schemeValidate.errors[0]
+    ));
+    
+    const { projectId } = req.params;
+    const { userId } = req.middlewares.authorization;
+    const { comment } = req.body;
+
+    const getCommentProjectSrv = await this.ActivityService.commentProject(projectId, userId, comment);
+    
+    if(getCommentProjectSrv === -1) return res.status(404).json(this.ResponsePreset.resErr(
+      404,
+      'Not Found, Project Not Exist',
+      'service',
+      { code: -1 }
+    ));
+
+    if(getCommentProjectSrv === -2) return res.status(403).json(this.ResponsePreset.resErr(
+      403,
+      'Forbidden, Comment Has Reach The Limit',
+      'service',
+      { code: -2 }
+    ));
+
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      null
+    ));
+  }
+
+  async delCommentProject(req, res) {
+    const { projectId, commentId } = req.params;
+    const { userId } = req.middlewares.authorization;
+
+    const getCommentProjectSrv = await this.ActivityService.delCommentProject(projectId, userId, commentId);
+    
+    if(getCommentProjectSrv === -1) return res.status(404).json(this.ResponsePreset.resErr(
+      404,
+      'Not Found, Comment Not Exist',
+      'service',
+      { code: -1 }
     ));
 
     return res.status(200).json(this.ResponsePreset.resOK(
