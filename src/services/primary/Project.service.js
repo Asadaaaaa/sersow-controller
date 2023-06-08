@@ -10,6 +10,8 @@ import ProjectPreviewModel from "../../models/ProjectPreview.model.js";
 import ProjectFilesModel from "../../models/ProjectFiles.model.js";
 import ProjectRankModel from "../../models/ProjectRank.model.js";
 import ProjectLikesModel from "../../models/ProjectLikes.model.js";
+import ProjectCommentsModel from "../../models/ProjectComments.model.js";
+import FollowingModel from "../../models/Following.model.js";
 
 // Library
 import { Op } from "sequelize";
@@ -31,6 +33,8 @@ class ProjectService {
     this.ProjectFilesModel = new ProjectFilesModel(this.server).table;
     this.ProjectRankModel = new ProjectRankModel(this.server).table;
     this.ProjectLikesModel = new ProjectLikesModel(this.server).table;
+    this.ProjectCommentsModel = new ProjectCommentsModel(this.server).table;
+    this.FollowingModel = new FollowingModel(this.server).table;
   }
 
   // Functon For Edit Project
@@ -40,6 +44,7 @@ class ProjectService {
       logo, thumbnail, image1, image2, image3,
       program, paper, code, tags, contributors
     } = reqData;
+    let datetime = new Date();
 
     if (id !== null) {
       const getDataProjectModel = await this.ProjectModel.findOne({ where: { id } });
@@ -47,6 +52,8 @@ class ProjectService {
       if (getDataProjectModel === null) return -1;
       if (getDataProjectModel.dataValues.id !== userId) return -1;
       if (isPublished === false && getDataProjectModel.dataValues.published === true) return -2;
+
+      if(getDataProjectModel.dataValues.published === true) datetime = new Date(getDataProjectModel.dataValues.published_datetime);
 
       await this.ProjectContributorsModel.destroy({ where: { project_id: getDataProjectModel.dataValues.id }});
       await this.ProjectCategoryModel.destroy({ where: { project_id: getDataProjectModel.dataValues.id }});
@@ -189,7 +196,13 @@ class ProjectService {
     const transaction = await this.server.model.db.transaction();
     try {
       const addDataProjectModel = await this.ProjectModel.upsert(
-        { ...(id !== null ? { id } : {}), user_id: userId, title, description, published: isPublished, published_datetime: new Date() },
+        {
+          ...(id !== null ? { id } : {}),
+          user_id: userId,
+          title, description,
+          published: isPublished,
+          published_datetime: datetime
+        },
         { transaction }
       );
       
@@ -356,6 +369,197 @@ class ProjectService {
     return getManageProject;
   }
 
+  async getDetails(projectId, userId) {
+    const getDataProjectModel = await this.ProjectModel.findOne({
+      where: {
+        id: projectId
+      },
+      attributes: [
+        'id',
+        ['user_id', 'owner_id'],
+        'description',
+        ['logo_path', 'logo'],
+        'published',
+        'published_datetime'
+      ]
+    });
+
+    if(getDataProjectModel === null) return -1;
+    if(getDataProjectModel.dataValues.published === false && getDataProjectModel.dataValues.user_id !== userId) return -2;
+
+    getDataProjectModel.dataValues.isMyProject = getDataProjectModel.dataValues.owner_id === userId ? true : false;
+    getDataProjectModel.dataValues.logo = getDataProjectModel.dataValues.logo !== null ? '/project/get/logo/' + projectId : null;
+    getDataProjectModel.dataValues.published_datetime = new Date(getDataProjectModel.dataValues.published_datetime).getTime();
+    
+    const getDataProjectCategoryModel = await this.ProjectCategoryModel.findAll({
+      where: {
+        project_id: projectId
+      }
+    });
+    
+    if(getDataProjectCategoryModel.length !== 0) {
+      const getDataCategoryModel = await this.CategoryModel.findAll({
+        where: {
+          id: {
+            [Op.in]: getDataProjectCategoryModel.map(val => val.dataValues.category_id)
+          }
+        }
+      });
+
+      for(let j in getDataCategoryModel) {
+        if(getDataCategoryModel[j].dataValues.name === 'Other') {
+          const indexOther = getDataProjectCategoryModel.findIndex(val => val.dataValues.category_id === getDataCategoryModel[j].dataValues.id);
+          // console.log(getDataCategoryModel[j].dataValues.name, getDataProjectCategoryModel[indexOther])
+          getDataCategoryModel[j].dataValues.name = getDataProjectCategoryModel[indexOther].dataValues.other;
+        }
+      }
+
+      getDataProjectModel.dataValues.categories = getDataCategoryModel.map(val => val.dataValues.name);
+    } else {
+      getDataProjectModel.dataValues.categories = null;
+    }
+    
+    const getDataProjectThumbnailModel = await this.ProjectThumbnailModel.findOne({
+      where: {
+        project_id: projectId
+      },
+      plain: true
+    });
+
+    if(getDataProjectThumbnailModel !== null) {
+      if(getDataProjectModel.dataValues.method === 1) {
+        getDataProjectModel.dataValues.thumbnail = '/project/get/thumbnail/' + projectId;
+      }
+      getDataProjectModel.dataValues.thumbnail = getDataProjectThumbnailModel.url;
+    } else {
+      getDataProjectModel.dataValues.thumbnail = null;
+    }
+
+    const getDataProjectPreviewModel = await this.ProjectPreviewModel.findAll({
+      where: {
+        project_id: projectId
+      }
+    });
+
+    if(getDataProjectPreviewModel.length !== 0) {
+      getDataProjectModel.dataValues.preview = getDataProjectPreviewModel.map((val) => {
+        return '/project/get/preview/' + val.dataValues.sort + '/' + projectId
+      });
+    } else {
+      getDataProjectModel.dataValues.preview = null;
+    }
+    
+    const getDataProjectTagsModel = await this.ProjectTagsModel.findAll({
+      where: {
+        project_id: projectId
+      }
+    });
+    
+    if(getDataProjectTagsModel.length !== 0) {
+      getDataProjectModel.dataValues.tags = getDataProjectTagsModel.map((val) => {
+        return val.dataValues.name
+      });
+    } else {
+      getDataProjectModel.dataValues.tags = null;
+    }
+
+    const getDataProjectFilesModel = await this.ProjectFilesModel.findAll({
+      where: {
+        project_id: projectId
+      },
+      order: [['type', 'ASC']]
+    });
+
+    getDataProjectFilesModel.program = null;
+    getDataProjectFilesModel.paper = null;
+    getDataProjectFilesModel.code = null;
+
+    if(getDataProjectFilesModel !== null) {
+      getDataProjectFilesModel.forEach(val => {
+        switch(val.dataValues.type) {
+          case 1: {
+            getDataProjectModel.dataValues.program = {
+              isUrl: val.dataValues.method === 1 ? false : true,
+              url: val.dataValues.method === 1 ? '/project/get/files/' + val.dataValues.type + '/' + projectId : val.dataValues.url,
+            }
+          }
+          
+          case 2: {
+            getDataProjectModel.dataValues.paper = {
+              isUrl: val.dataValues.method === 1 ? false : true,
+              url: val.dataValues.method === 1 ? '/project/get/files/' + val.dataValues.type + '/' + projectId : val.dataValues.url,
+            }
+          }
+
+          case 3: {
+            getDataProjectModel.dataValues.code = {
+              isUrl: val.dataValues.method === 1 ? false : true,
+              url: val.dataValues.method === 1 ? '/project/get/files/' + val.dataValues.type + '/' + projectId : val.dataValues.url,
+            }
+          }
+        }
+      });
+    } else {
+      getDataProjectModel.dataValues.preview = null;
+    }
+
+    const getDataProjectLikesModel = await this.ProjectLikesModel.findAll({
+      where: {
+        project_id: projectId
+      },
+      attributes: [
+        'user_id'
+      ]
+    });
+
+    getDataProjectModel.dataValues.totalLikes = getDataProjectLikesModel.length;
+
+    if(userId) {
+      const isUserExistProjectLikesModel = await this.ProjectLikesModel.findOne({
+        where: {
+          project_id: projectId,
+          user_id: userId
+        }
+      });
+
+      getDataProjectModel.dataValues.isLiked = isUserExistProjectLikesModel !== null ? true : false;
+    } else {
+      getDataProjectModel.dataValues.isLiked = false;
+    }
+    
+
+
+    const getDataProjectComments = await this.ProjectCommentsModel.findAll({
+      where: {
+        project_id: projectId
+      },
+      order: [
+        ['createdAt', 'DESC']
+      ]
+    });
+
+    getDataProjectModel.dataValues.comments = [];
+    for(let i in getDataProjectComments) {
+      const getDataUserModel = await this.UserModel.findOne({
+        where: {
+          id: getDataProjectComments[i].dataValues.user_id
+        }
+      });
+
+      getDataProjectModel.dataValues.comments.push({
+        id: getDataUserModel.dataValues.id,
+        name: getDataUserModel.dataValues.name,
+        username: getDataUserModel.dataValues.username,
+        gender: getDataUserModel.dataValues.gender,
+        image: '/profile/get/photo/' + getDataUserModel.dataValues.id,
+        isMyComment: userId === getDataUserModel.dataValues.id ? true : false,
+        comment: getDataProjectComments[i].dataValues.comment
+      });
+    }
+
+    return getDataProjectModel.dataValues;
+  }
+
   async getLogo(projectId) {
     const getDataProjectModel = await this.ProjectModel.findOne({
       where: {
@@ -481,15 +685,36 @@ class ProjectService {
             }
           }
         });
+        
+        if(userId) {
+          getDataProjectModel[i].dataValues.contributors = [];
+          for(let j in getDataUserModel) {
+            const getDataFollowingModel = await this.FollowingModel.findOne({
+              where: {
+                user_id: userId,
+                follow_user_id: getDataUserModel[j].dataValues.id
+              }
+            });
 
-        getDataProjectModel[i].dataValues.contributors = getDataUserModel.map(val => {
-          return {
-            user_id: val.dataValues.id,
-            name: val.dataValues.name,
-            username: val.dataValues.username,
-            image: '/profile/get/photo' + val.dataValues.id
+            getDataProjectModel[i].dataValues.contributors.push({
+              user_id: getDataUserModel[j].dataValues.id,
+              name: getDataUserModel[j].dataValues.name,
+              username: getDataUserModel[j].dataValues.username,
+              image: '/profile/get/photo' + getDataUserModel[j].dataValues.id,
+              isFollowed: getDataFollowingModel !== null ? true : false
+            });
           }
-        });
+        } else {
+          getDataProjectModel[i].dataValues.contributors = getDataUserModel.map(val => {
+            return {
+              user_id: val.dataValues.id,
+              name: val.dataValues.name,
+              username: val.dataValues.username,
+              image: '/profile/get/photo' + val.dataValues.id,
+              isFollowed: false
+            }
+          });
+        }
       } else {
         getDataProjectModel[i].dataValues.contributors = null;
       }
@@ -597,15 +822,35 @@ class ProjectService {
             }
           }
         });
+        if(userId) {
+          getDataProjectRankModel[i].dataValues.contributors = [];
+          for(let j in getDataUserModel) {
+            const getDataFollowingModel = await this.FollowingModel.findOne({
+              where: {
+                user_id: userId,
+                follow_user_id: getDataUserModel[j].dataValues.id
+              }
+            });
 
-        getDataProjectRankModel[i].dataValues.contributors = getDataUserModel.map(val => {
-          return {
-            user_id: val.dataValues.id,
-            name: val.dataValues.name,
-            username: val.dataValues.username,
-            image: '/profile/get/photo' + val.dataValues.id
+            getDataProjectRankModel[i].dataValues.contributors.push({
+              user_id: getDataUserModel[j].dataValues.id,
+              name: getDataUserModel[j].dataValues.name,
+              username: getDataUserModel[j].dataValues.username,
+              image: '/profile/get/photo' + getDataUserModel[j].dataValues.id,
+              isFollowed: getDataFollowingModel !== null ? true : false
+            });
           }
-        });
+        } else {
+          getDataProjectRankModel[i].dataValues.contributors = getDataUserModel.map(val => {
+            return {
+              user_id: val.dataValues.id,
+              name: val.dataValues.name,
+              username: val.dataValues.username,
+              image: '/profile/get/photo' + val.dataValues.id,
+              isFollowed: false
+            }
+          });
+        }
       } else {
         getDataProjectRankModel[i].dataValues.contributors = null;
       }

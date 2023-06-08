@@ -448,6 +448,18 @@ class ProjectController {
     ));
   }
 
+  async getDetails(req, res) {
+    const { projectId } = req.params;
+    const { userId } = req.middlewares.authorization;
+
+    const getDetailsSrv = await this.ProjectService.getDetails(projectId, userId);
+    
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      getDetailsSrv
+    ))
+  }
+
   // --- Get Logo Project
   async getLogo(req, res) {
     const { projectId } = req.params;
