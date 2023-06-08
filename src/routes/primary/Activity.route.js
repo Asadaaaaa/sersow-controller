@@ -15,8 +15,11 @@ class Activity extends Primary {
     // --- User ---
     // Post
     this.API.post(this.endpointPrefix + '/user/follow/:userId', this.AuthorizationMiddleware.check(), (req, res) => this.ActivityController.follow(req, res));
+    this.API.post(this.endpointPrefix + '/project/like/:projectId', this.AuthorizationMiddleware.check(), (req, res) => this.ActivityController.likeProject(req, res));
+    
     // Delete
     this.API.delete(this.endpointPrefix + '/user/follow/:userId', this.AuthorizationMiddleware.check(), (req, res) => this.ActivityController.unfollow(req, res));
+    this.API.delete(this.endpointPrefix + '/project/like/:projectId', this.AuthorizationMiddleware.check(), (req, res) => this.ActivityController.unlikeProject(req, res));
 
 
   }
