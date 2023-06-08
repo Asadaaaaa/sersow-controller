@@ -70,6 +70,58 @@ class ActivityController {
 
     return res.status(200).json(this.ResponsePreset.resOK('OK', null));
   }
+
+  async likeProject(req, res) {
+    const { projectId } = req.params;
+    const { userId } = req.middlewares.authorization;
+
+    const getLikeProjectSrv = await this.ActivityService.likeProject(projectId, userId);
+    
+    if(getLikeProjectSrv === -1) return res.status(404).json(this.ResponsePreset.resErr(
+      404,
+      'Not Found, Project Not Exist',
+      'service',
+      { code: -1 }
+    ));
+    
+    if(getLikeProjectSrv === -2) return res.status(403).json(this.ResponsePreset.resErr(
+      403,
+      'Forbidden, Project Already Liked',
+      'service',
+      { code: -2 }
+    ));
+
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      null
+    ));
+  }
+
+  async unlikeProject(req, res) {
+    const { projectId } = req.params;
+    const { userId } = req.middlewares.authorization;
+
+    const getLikeProjectSrv = await this.ActivityService.unlikeProject(projectId, userId);
+    
+    if(getLikeProjectSrv === -1) return res.status(404).json(this.ResponsePreset.resErr(
+      404,
+      'Not Found, Project Not Exist',
+      'service',
+      { code: -1 }
+    ));
+    
+    if(getLikeProjectSrv === -2) return res.status(404).json(this.ResponsePreset.resErr(
+      404,
+      'Forbidden, Your Like Not Found',
+      'service',
+      { code: -2 }
+    ));
+
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      null
+    ));
+  }
 }
 
 export default ActivityController;
