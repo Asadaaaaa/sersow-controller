@@ -249,7 +249,7 @@ class ProjectController {
       schemeValidate.errors[0]
     ));
 
-    const getPublishProjectSrv = await this.ProjectService.PublishProject(req.body, userId);
+    const getPublishProjectSrv = await this.ProjectService.publishProject(req.body, userId);
 
     switch(getPublishProjectSrv) {
       case -1: {
@@ -472,6 +472,29 @@ class ProjectController {
 
     res.setHeader('Content-Type', getThumbnailSrv.mime);
     return res.status(200).send(getThumbnailSrv.file);
+  }
+
+  async getPreviewImage(req, res) {
+    const { sort, projectId } = req.params;
+
+    if(isNaN(sort)) return res.status(400).json(this.ResponsePreset.resErr(
+      400,
+      'Bad Request, Sort Must Be a Number',
+      'service',
+      { code: -1 }
+    ));
+
+    const getPreviewImageSrv = await this.ProjectService.getPreviewImage(Number(sort), projectId);
+
+    if(getPreviewImageSrv === -1) return res.status(404).json(this.ResponsePreset.resErr(
+      404,
+      'Not Found, Image Not Found',
+      'service',
+      { code: -1 }
+    ));
+
+    res.setHeader('Content-Type', getPreviewImageSrv.mime);
+    return res.status(200).send(getPreviewImageSrv.file);
   }
 
   // --- Get Project For You
