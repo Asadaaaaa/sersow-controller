@@ -490,11 +490,41 @@ class ProjectController {
       404,
       'Not Found, Image Not Found',
       'service',
-      { code: -1 }
+      { code: -2 }
     ));
 
     res.setHeader('Content-Type', getPreviewImageSrv.mime);
     return res.status(200).send(getPreviewImageSrv.file);
+  }
+
+  async getFiles(req, res) {
+    const { type, projectId } = req.params;
+    
+    if(isNaN(type)) return res.status(400).json(this.ResponsePreset.resErr(
+      400,
+      'Bad Request, Type Must Be a Number',
+      'service',
+      { code: -1 }
+    ));
+
+    const getFilesSrv = await this.ProjectService.getFiles(Number(type), projectId);
+    if(getFilesSrv === -1) return res.status(404).json(this.ResponsePreset.resErr(
+      404,
+      'Not Found, File Not Found',
+      'service',
+      { code: -2 }
+    ));
+
+    if(getFilesSrv === -2) return res.status(404).json(this.ResponsePreset.resErr(
+      403,
+      'Forbidden, File Using Another method',
+      'service',
+      { code: -3 }
+    ));
+
+    res.attachment(getFilesSrv.name);
+    res.setHeader('Content-Type', getFilesSrv.mime);
+    return res.status(200).send(getFilesSrv.file);
   }
 
   // --- Get Project For You
