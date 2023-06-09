@@ -26,9 +26,15 @@ class ProjectRoute extends Primary {
     this.API.get(this.endpointPrefix + '/get/thumbnail/:projectId', (req, res) => this.ProjectController.getThumbnail(req, res));
     this.API.get(this.endpointPrefix + '/get/preview/:sort/:projectId', (req, res) => this.ProjectController.getPreviewImage(req, res));
     this.API.get(this.endpointPrefix + '/get/files/:type/:projectId', (req, res) => this.ProjectController.getFiles(req, res));
+    
+    this.API.get(this.endpointPrefix + '/get/user/:targetUserId', this.AuthorizationMiddleware.check(), (req, res) => this.ProjectController.getUserProject(req, res));
+    this.API.get(this.endpointPrefix + '/get/my/draft', this.AuthorizationMiddleware.check(), (req, res) => this.ProjectController.getMyDraft(req, res));
+    this.API.get(this.endpointPrefix + '/get/collabs/:targetUserId', this.AuthorizationMiddleware.check(), (req, res) => this.ProjectController.getUserCollabs(req, res));
 
     this.API.get(this.endpointPrefix + '/get/foryou', this.AuthorizationMiddleware.check(), (req, res) => this.ProjectController.getForYou(req, res));
     this.API.get(this.endpointPrefix + '/trends/project', this.AuthorizationMiddleware.check(), (req, res) => this.ProjectController.getProjectTrends(req, res));
+
+    this.API.get(this.endpointPrefix + '/search/title/:title', this.AuthorizationMiddleware.check(), (req, res) => this.ProjectController.searchProject(req, res));
 
   }
 }
