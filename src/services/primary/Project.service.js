@@ -73,9 +73,14 @@ class ProjectService {
       });
 
       if(getDataCategoryModel.length !== categories.length) return -3;
+      
+      const idxOtherId = getDataCategoryModel.findIndex(val2 => val2.dataValues.name === "Other");
 
-      const idxOther = categories.findIndex((val) => val === getDataCategoryModel[getDataCategoryModel.findIndex(val2 => val2.dataValues.name === "Other")].dataValues.id);
-      if(idxOther !== -1) categories.splice(idxOther, 1);
+      if(idxOtherId !== -1) {
+        const idxOther = categories.findIndex((val) => val === getDataCategoryModel[idxOtherId].dataValues.id);
+        if(idxOther !== -1) categories.splice(idxOther, 1);
+      }
+      
     }
 
     let logoFile;
@@ -435,6 +440,7 @@ class ProjectService {
       for(let j in getDataCategoryModel) {
         if(getDataCategoryModel[j].dataValues.name === 'Other') {
           const indexOther = getDataProjectCategoryModel.findIndex(val => val.dataValues.category_id === getDataCategoryModel[j].dataValues.id);
+          console.log(getDataProjectCategoryModel[indexOther])
           getDataCategoryModel[j].dataValues.name = getDataProjectCategoryModel[indexOther].dataValues.other;
         }
       }
