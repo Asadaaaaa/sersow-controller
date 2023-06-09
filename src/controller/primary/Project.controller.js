@@ -546,6 +546,42 @@ class ProjectController {
     return res.status(200).send(getFilesSrv.file);
   }
 
+  async getUserProject(req, res) {
+    const { targetUserId } = req.params;
+    const { userId } = req.middlewares.authorization;
+    
+    const getUserProjectSrv = await this.ProjectService.getUserProject(targetUserId, userId);
+
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      getUserProjectSrv
+    ));
+  }
+
+  async getMyDraft(req, res) {
+    const { userId } = req.middlewares.authorization;
+    
+    const getgetMyDraftSrv = await this.ProjectService.getMyDraft(userId);
+
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      getgetMyDraftSrv
+    ));
+  }
+
+  async getUserCollabs(req, res) {
+    console.log(req.query)
+    const { targetUserId } = req.params;
+    const { userId } = req.middlewares.authorization;
+    
+    const getUserCollabsSrv = await this.ProjectService.getUserCollabs(targetUserId, userId);
+
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      getUserCollabsSrv
+    ));
+  }
+
   // --- Get Project For You
   async getForYou(req, res) {
     const { offset, limit, following } = req.query;
@@ -596,6 +632,18 @@ class ProjectController {
       'OK',
       getProjectTrendsSrv
     ));
+  }
+
+  async searchProject(req, res) {
+    const { title } = req.params;
+    const { userId } = req.middlewares.authorization;
+
+    const searchProjectSrv = await this.ProjectService.searchProject(title, userId);
+    
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      searchProjectSrv
+    ))
   }
 }
 

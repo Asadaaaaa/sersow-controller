@@ -142,10 +142,12 @@ class Profile {
         username: {
           [Op.substring]:  `%${username}%`
         },
-        id: {
-          [Op.ne]: userId
-        },
-        verif_email_upi: true
+        ...(userId ? {
+          id: {
+            [Op.ne]: userId
+          },
+          verif_email_upi: true
+        } : {})
       },
       order: [
         [this.server.model.db.literal(`LOCATE('${username}', username)`)], // Sort by similarity
@@ -159,12 +161,24 @@ class Profile {
       ]
     });
 
-    const newData = getDataUserModel.map(val => {
-      val.dataValues.image = '/profile/get/photo/' + val.dataValues.id;
-      return val.dataValues;
-    });
+    for(let i in getDataUserModel) {
+      getDataUserModel[i].dataValues.image = '/profile/get/photo/' + getDataUserModel[i].dataValues.id;
 
-    return newData;
+      if(userId) {
+        const getDataFollowingModel = await this.FollowingModel.findOne({
+          where: {
+            user_id: userId,
+            follow_user_id: getDataUserModel[i].dataValues.id
+          }
+        });
+  
+        getDataUserModel[i].dataValues.isFollowed = getDataFollowingModel !== null ? true : false;
+      } else {
+        getDataUserModel[i].dataValues.isFollowed = false;
+      }
+    }
+
+    return getDataUserModel;
   }
 
   async getTrendsUsers(userId) {

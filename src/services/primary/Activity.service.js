@@ -12,6 +12,7 @@ class ActivityService {
     this.FollowingModel = new FollowingModel(this.server).table;
     this.ProjectModel = new ProjectModel(this.server).table;
     this.ProjectModel = new ProjectModel(this.server).table;
+    this.ProjectLikesModel = new ProjectLikesModel(this.server).table;
     this.ProjectCommentsModel = new ProjectCommentsModel(this.server).table;
   }
 
