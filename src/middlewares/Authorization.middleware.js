@@ -16,7 +16,9 @@ class Authorization {
       
       if(!token || token === 'undefined') {
         if(req.path.endsWith('/profile/get/' + req.params.username)) return next();
-        if(req.path.endsWith('/profile/trends/users')) return next();
+        if(req.path.endsWith('/profile/get/' + req.params.username)) return next();
+        if(req.path.endsWith('/profile/get/following/' + req.params.targetUserId)) return next();
+        if(req.path.endsWith('/profile/get/follower/' + req.params.targetUserId)) return next();
         if(req.path.endsWith('/profile/search/username/' + req.params.username)) return next();
 
         if(req.path.endsWith('/project/get/details/' + req.params.projectId)) return next();

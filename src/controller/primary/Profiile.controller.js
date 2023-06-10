@@ -136,6 +136,29 @@ class Profile {
       getTrendsUsersSrv
     ));
   }
-}
 
+  async getFollowingsUser(req, res) {
+    const { targetUserId } = req.params;
+    const { userId } = req.middlewares.authorization;
+
+    const getFollowingsUserSrv = await this.ProfileService.getFollowingsUser(targetUserId, userId);
+
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      getFollowingsUserSrv
+    ));
+  }
+
+  async getFollowersUser(req, res) {
+    const { targetUserId } = req.params;
+    const { userId } = req.middlewares.authorization;
+
+    const getFollowersUserSrv = await this.ProfileService.getFollowersUser(targetUserId, userId);
+
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      getFollowersUserSrv
+    ));
+  }
+}
 export default Profile;

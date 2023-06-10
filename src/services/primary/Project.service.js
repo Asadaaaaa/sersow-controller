@@ -73,7 +73,7 @@ class ProjectService {
       });
 
       if(getDataCategoryModel.length !== categories.length) return -3;
-      
+
       const idxOtherId = getDataCategoryModel.findIndex(val2 => val2.dataValues.name === "Other");
 
       if(idxOtherId !== -1) {
@@ -556,29 +556,21 @@ class ProjectService {
     getDataProjectModel.dataValues.paper = null;
     getDataProjectModel.dataValues.code = null;
 
-    if(getDataProjectFilesModel !== null) {
+    if(getDataProjectFilesModel.length !== 0) {
       getDataProjectFilesModel.forEach(val => {
-        switch(val.dataValues.type) {
-          case 1: {
-            getDataProjectModel.dataValues.program = {
-              isUrl: val.dataValues.method === 1 ? false : true,
-              url: val.dataValues.method === 1 ? '/project/get/files/' + val.dataValues.type + '/' + projectId : val.dataValues.url,
-            }
-          }
-          
-          case 2: {
-            getDataProjectModel.dataValues.paper = {
-              isUrl: val.dataValues.method === 1 ? false : true,
-              url: val.dataValues.method === 1 ? '/project/get/files/' + val.dataValues.type + '/' + projectId : val.dataValues.url,
-            }
-          }
+        if(val.dataValues.type === 1) getDataProjectModel.dataValues.program = {
+          isUrl: val.dataValues.method === 1 ? false : true,
+          url: val.dataValues.method === 1 ? '/project/get/files/' + val.dataValues.type + '/' + projectId : val.dataValues.url,
+        }
+        
+        if(val.dataValues.type === 2) getDataProjectModel.dataValues.paper = {
+          isUrl: val.dataValues.method === 1 ? false : true,
+          url: val.dataValues.method === 1 ? '/project/get/files/' + val.dataValues.type + '/' + projectId : val.dataValues.url,
+        }
 
-          case 3: {
-            getDataProjectModel.dataValues.code = {
-              isUrl: val.dataValues.method === 1 ? false : true,
-              url: val.dataValues.method === 1 ? '/project/get/files/' + val.dataValues.type + '/' + projectId : val.dataValues.url,
-            }
-          }
+        if(val.dataValues.type === 3) getDataProjectModel.dataValues.code = {
+          isUrl: val.dataValues.method === 1 ? false : true,
+          url: val.dataValues.method === 1 ? '/project/get/files/' + val.dataValues.type + '/' + projectId : val.dataValues.url,
         }
       });
     } else {

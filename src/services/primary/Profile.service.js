@@ -210,6 +210,80 @@ class Profile {
 
     return getDataUserRankModel;
   }
+
+  async getFollowingsUser(targetUserId, userId) {
+    const getDataUserModel = await this.UserModel.findAll({
+      where: {
+        id: {
+          [Op.in]:  this.server.model.db.literal(`(SELECT follow_user_id FROM following WHERE user_id = "${targetUserId}")`),
+          ...(userId ? { [Op.ne]: userId } : {})
+        },
+        verif_email_upi: true
+      },
+      attributes: [
+        'id',
+        'username',
+        'name',
+        ['image_path', 'image']
+      ]
+    });
+    
+    for(let i in getDataUserModel) {
+      getDataUserModel[i].dataValues.image = '/profile/get/photo/' + getDataUserModel[i].dataValues.id;
+
+      if(userId) {
+        const getDataFollowingModel = await this.FollowingModel.findOne({
+          where: {
+            user_id: userId,
+            follow_user_id: getDataUserModel[i].dataValues.id
+          }
+        });
+  
+        getDataUserModel[i].dataValues.isFollowed = getDataFollowingModel !== null ? true : false;
+      } else {
+        getDataUserModel[i].dataValues.isFollowed = false;
+      }
+    }
+
+    return getDataUserModel;
+  }
+
+  async getFollowersUser(targetUserId, userId) {
+    const getDataUserModel = await this.UserModel.findAll({
+      where: {
+        id: {
+          [Op.in]:  this.server.model.db.literal(`(SELECT user_id FROM following WHERE follow_user_id = "${targetUserId}")`),
+          ...(userId ? { [Op.ne]: userId } : {})
+        },
+        verif_email_upi: true
+      },
+      attributes: [
+        'id',
+        'username',
+        'name',
+        ['image_path', 'image']
+      ]
+    });
+    
+    for(let i in getDataUserModel) {
+      getDataUserModel[i].dataValues.image = '/profile/get/photo/' + getDataUserModel[i].dataValues.id;
+
+      if(userId) {
+        const getDataFollowingModel = await this.FollowingModel.findOne({
+          where: {
+            user_id: userId,
+            follow_user_id: getDataUserModel[i].dataValues.id
+          }
+        });
+  
+        getDataUserModel[i].dataValues.isFollowed = getDataFollowingModel !== null ? true : false;
+      } else {
+        getDataUserModel[i].dataValues.isFollowed = false;
+      }
+    }
+
+    return getDataUserModel;
+  }
 }
 
 export default Profile;
