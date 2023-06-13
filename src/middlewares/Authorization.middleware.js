@@ -20,7 +20,7 @@ class Authorization {
         if(req.path.endsWith('/profile/get/following/' + req.params.targetUserId)) return next();
         if(req.path.endsWith('/profile/get/follower/' + req.params.targetUserId)) return next();
         if(req.path.endsWith('/profile/search/username/' + req.params.username)) return next();
-        if(req.path.endsWith('/profile/trends/users' + req.params.username)) return next();
+        if(req.path.endsWith('/profile/trends/users')) return next();
 
         if(req.path.endsWith('/project/get/details/' + req.params.projectId)) return next();
         if(req.path.endsWith('/project/trends/project')) return next();
