@@ -26,9 +26,15 @@ class ActivityService {
     });
 
     if(getDataUserModel === null) return -1;
+    
+    const getDataFollowingModel = await this.FollowingModel.findOne({
+      where: { user_id: userId, follow_user_id: followUserId }
+    });
 
-    this.FollowingModel.create({ user_id: userId, follow_user_id: followUserId });
-
+    if (getDataFollowingModel !== null) return -2;
+      
+    await this.FollowingModel.create({ user_id: userId, follow_user_id: followUserId });
+  
     return 1;
   }
 
