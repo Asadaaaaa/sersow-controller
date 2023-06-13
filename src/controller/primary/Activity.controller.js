@@ -44,6 +44,13 @@ class ActivityController {
       { code: -3 }
     ));
 
+    if(followSrv === -2) return res.status(404).json(this.ResponsePreset.resErr(
+      404,
+      "Forbidden, You Already Following",
+      'service',
+      { code: -4 }
+    ));
+
     return res.status(200).json(this.ResponsePreset.resOK('OK', null));
   }
 
