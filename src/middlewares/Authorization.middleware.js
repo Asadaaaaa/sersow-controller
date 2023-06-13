@@ -15,19 +15,7 @@ class Authorization {
       const token = req.headers['authorization'];
       
       if(!token || token === 'undefined') {
-        if(req.path.endsWith('/profile/get/' + req.params.username)) return next();
-        if(req.path.endsWith('/profile/get/' + req.params.username)) return next();
-        if(req.path.endsWith('/profile/get/following/' + req.params.targetUserId)) return next();
-        if(req.path.endsWith('/profile/get/follower/' + req.params.targetUserId)) return next();
-        if(req.path.endsWith('/profile/search/username/' + req.params.username)) return next();
-        if(req.path.endsWith('/profile/trends/users')) return next();
-
-        if(req.path.endsWith('/project/get/details/' + req.params.projectId)) return next();
-        if(req.path.endsWith('/project/trends/project')) return next();
-        if(req.path.endsWith('/project/get/user/' + req.params.targetUserId)) return next();
-        if(req.path.endsWith('/project/get/collabs/' + req.params.targetUserId)) return next();
-        if(req.path.endsWith('/project/get/foryou')) return next();
-        if(req.path.endsWith('/project/search/title/' + req.params.title)) return next();
+        if(this.optionalRoutes(req) === true) return next();
 
         return res.status(401).json(this.ResponsePreset.resErr(
           401,
@@ -78,6 +66,27 @@ class Authorization {
 
         return next();
       });
+    }
+  }
+
+  optionalRoutes(req) {
+    switch(true) {
+      // Profile
+      case req.path.endsWith('/profile/get/' + req.params.username): return true;
+      case req.path.endsWith('/profile/get/following/' + req.params.targetUserId): return true;
+      case req.path.endsWith('/profile/get/follower/' + req.params.targetUserId): return true;
+      case req.path.endsWith('/profile/search/username/' + req.params.username): return true;
+      case req.path.endsWith('/profile/trends/users'): return true;
+
+      // Project
+      case req.path.endsWith('/project/get/details/' + req.params.projectId): return true;
+      case req.path.endsWith('/project/trends/project'): return true;
+      case req.path.endsWith('/project/get/user/' + req.params.targetUserId): return true;
+      case req.path.endsWith('/project/get/collabs/' + req.params.targetUserId): true;
+      case req.path.endsWith('/project/get/foryou'): return true;
+      case req.path.endsWith('/project/search/title/' + req.params.title): return true;
+
+      default: return false;
     }
   }
 
