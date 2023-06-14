@@ -156,29 +156,11 @@ class Profile {
       attributes: [
         'id',
         'username',
-        'name',
-        ['image_path', 'image']
+        'name'
       ]
     });
-
-    for(let i in getDataUserModel) {
-      getDataUserModel[i].dataValues.image = '/profile/get/photo/' + getDataUserModel[i].dataValues.id;
-
-      if(userId) {
-        const getDataFollowingModel = await this.FollowingModel.findOne({
-          where: {
-            user_id: userId,
-            follow_user_id: getDataUserModel[i].dataValues.id
-          }
-        });
-  
-        getDataUserModel[i].dataValues.isFollowed = getDataFollowingModel !== null ? true : false;
-      } else {
-        getDataUserModel[i].dataValues.isFollowed = false;
-      }
-    }
-
-    return getDataUserModel;
+    
+    return await this.getListUsersPreview(getDataUserModel, userId);
   }
 
   async getTrendsUsers(userId) {
@@ -190,99 +172,65 @@ class Profile {
       ]
     });
 
-    for(let i in getDataUserRankModel) {
-      getDataUserRankModel[i].dataValues.image = '/profile/get/photo/' + getDataUserRankModel[i].dataValues.id;
-      getDataUserRankModel[i].dataValues.isFollowed = false;
-      getDataUserRankModel[i].dataValues.isMyProfile = getDataUserRankModel[i].dataValues.id === userId ? true : false;
-
-      if(userId) {
-        const getDataFollowingModel = await this.FollowingModel.findOne({
-          where: {
-            user_id: userId,
-            follow_user_id: getDataUserRankModel[i].dataValues.id
-          }
-        });
-  
-        if(getDataFollowingModel !== null) getDataUserRankModel[i].dataValues.isFollowed = true;
-      }
-      
-    }
-
-    return getDataUserRankModel;
+    return await this.getListUsersPreview(getDataUserRankModel, userId);
   }
 
   async getFollowingsUser(targetUserId, userId) {
     const getDataUserModel = await this.UserModel.findAll({
       where: {
         id: {
-          [Op.in]:  this.server.model.db.literal(`(SELECT follow_user_id FROM following WHERE user_id = "${targetUserId}")`),
-          ...(userId ? { [Op.ne]: userId } : {})
+          [Op.in]:  this.server.model.db.literal(`(SELECT follow_user_id FROM following WHERE user_id = "${targetUserId}")`)
         },
         verif_email_upi: true
       },
       attributes: [
         'id',
         'username',
-        'name',
-        ['image_path', 'image']
+        'name'
       ]
     });
-    
-    for(let i in getDataUserModel) {
-      getDataUserModel[i].dataValues.image = '/profile/get/photo/' + getDataUserModel[i].dataValues.id;
 
-      if(userId) {
-        const getDataFollowingModel = await this.FollowingModel.findOne({
-          where: {
-            user_id: userId,
-            follow_user_id: getDataUserModel[i].dataValues.id
-          }
-        });
-  
-        getDataUserModel[i].dataValues.isFollowed = getDataFollowingModel !== null ? true : false;
-      } else {
-        getDataUserModel[i].dataValues.isFollowed = false;
-      }
-    }
-
-    return getDataUserModel;
+    return await this.getListUsersPreview(getDataUserModel, userId);
   }
 
   async getFollowersUser(targetUserId, userId) {
     const getDataUserModel = await this.UserModel.findAll({
       where: {
         id: {
-          [Op.in]:  this.server.model.db.literal(`(SELECT user_id FROM following WHERE follow_user_id = "${targetUserId}")`),
-          ...(userId ? { [Op.ne]: userId } : {})
+          [Op.in]:  this.server.model.db.literal(`(SELECT user_id FROM following WHERE follow_user_id = "${targetUserId}")`)
         },
         verif_email_upi: true
       },
       attributes: [
         'id',
         'username',
-        'name',
-        ['image_path', 'image']
+        'name'
       ]
     });
-    
-    for(let i in getDataUserModel) {
-      getDataUserModel[i].dataValues.image = '/profile/get/photo/' + getDataUserModel[i].dataValues.id;
+
+    return await this.getListUsersPreview(getDataUserModel, userId);
+  }
+
+  async getListUsersPreview(dataUsersModel, userId) {
+    for(let i in dataUsersModel) {
+      dataUsersModel[i].dataValues.image = '/profile/get/photo/' + dataUsersModel[i].dataValues.id;
+      dataUsersModel[i].dataValues.isMyProfile = dataUsersModel[i].dataValues.id === userId ? true : false;
 
       if(userId) {
         const getDataFollowingModel = await this.FollowingModel.findOne({
           where: {
             user_id: userId,
-            follow_user_id: getDataUserModel[i].dataValues.id
+            follow_user_id: dataUsersModel[i].dataValues.id
           }
         });
   
-        getDataUserModel[i].dataValues.isFollowed = getDataFollowingModel !== null ? true : false;
+        dataUsersModel[i].dataValues.isFollowed = getDataFollowingModel !== null ? true : false;
       } else {
-        getDataUserModel[i].dataValues.isFollowed = false;
+        dataUsersModel[i].dataValues.isFollowed = false;
       }
     }
 
-    return getDataUserModel;
+    return dataUsersModel;
   }
 }
 
