@@ -244,7 +244,7 @@ class Auth {
       to: email,
       subject: "Sersow - Password Reset Request",
       html: `
-      <p>Dear User, ${userModelData.dataValues.name}</p>
+      <p>Dear ${userModelData.dataValues.name}</p>
       <p>We are sorry to hear that you have forgotten your password. Please don't worry, we have got you covered. You can reset your password by click button below:</p>
       <a style="display: inline-block; padding: 10px 20px; background-color: blue; color: white; text-decoration: none; font-weight: bold; border-radius: 4px;" href="${this.server.env.WEB_HOST}/new-password?token=${code}">Forgot Password</a>
       <br>
