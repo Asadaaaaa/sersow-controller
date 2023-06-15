@@ -161,7 +161,7 @@ class ActivityController {
 
     if(getCommentProjectSrv === -2) return res.status(403).json(this.ResponsePreset.resErr(
       403,
-      'Forbidden, Comment Has Reach The Limit',
+      'Forbidden, Comment Spam Detected',
       'service',
       { code: -2 }
     ));
