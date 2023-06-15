@@ -722,7 +722,8 @@ class ProjectService {
   async getUserProject(targetUserId, userId) {
     const getDataProjectModel = await this.ProjectModel.findAll({
       where: {
-        user_id: targetUserId
+        user_id: targetUserId,
+        published: true
       },
       order: [
         ['published_datetime', 'DESC']
