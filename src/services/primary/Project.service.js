@@ -609,7 +609,22 @@ class ProjectService {
       getDataProjectModel.dataValues.isLiked = false;
     }
 
-    getDataProjectModel.dataValues.yourImage = userId ? '/profile/get/photo/' + userId : null;
+    if(userId) {
+      const getDataUserModel = await this.UserModel.findOne({
+        where: {
+          id: userId
+        }
+      });
+      getDataProjectModel.dataValues.myIdentity = getDataUserModel ? {
+        id: getDataUserModel.dataValues.id,
+        name: getDataUserModel.dataValues.name,
+        username: getDataUserModel.dataValues.username,
+        gender: getDataUserModel.dataValues.gender,
+        image: '/profile/get/photo/' + getDataUserModel.dataValues.id
+      } : null
+    } else {
+      getDataProjectModel.dataValues.myIdentity = null;
+    }
 
     const getDataProjectComments = await this.ProjectCommentsModel.findAll({
       where: {
@@ -723,27 +738,6 @@ class ProjectService {
     };
   }
 
-  async getUserProject(targetUserId, userId) {
-    const getDataProjectModel = await this.ProjectModel.findAll({
-      where: {
-        user_id: targetUserId,
-        published: true
-      },
-      order: [
-        ['published_datetime', 'DESC']
-      ],
-      attributes: [
-        'id',
-        ['user_id', 'owner_id'],
-        'title',
-        'description',
-        ['logo_path', 'logo']
-      ]
-    });
-    
-    return this.getListPreviewProjects(getDataProjectModel, userId);
-  }
-
   async getMyDraft(userId) {
     const getDataProjectModel = await this.ProjectModel.findAll({
       where: {
@@ -765,6 +759,27 @@ class ProjectService {
     return await this.getListPreviewProjects(getDataProjectModel, userId);
   }
 
+  async getUserProject(targetUserId, userId) {
+    const getDataProjectModel = await this.ProjectModel.findAll({
+      where: {
+        user_id: targetUserId,
+        published: true
+      },
+      order: [
+        ['published_datetime', 'DESC']
+      ],
+      attributes: [
+        'id',
+        ['user_id', 'owner_id'],
+        'title',
+        'description',
+        ['logo_path', 'logo']
+      ]
+    });
+    
+    return this.getListPreviewProjects(getDataProjectModel, userId);
+  }
+
   async getUserCollabs(targetUserId, userId) {
     const getDataProjectModel = await this.ProjectModel.findAll({
       where: {
@@ -784,129 +799,8 @@ class ProjectService {
         ['logo_path', 'logo']
       ]
     });
-
-    for(let i in getDataProjectModel) {
-      const getDataUserModel = await this.UserModel.findOne({
-        where: {
-          id: getDataProjectModel[i].dataValues.owner_id
-        }
-      });
-      getDataProjectModel[i].dataValues.owner_name = getDataUserModel.dataValues.name;
-      getDataProjectModel[i].dataValues.owner_username = getDataUserModel.dataValues.username;
-      getDataProjectModel[i].dataValues.owner_image = '/profile/get/photo/' + getDataProjectModel[i].dataValues.owner_id;
-
-      if(getDataProjectModel[i].dataValues.logo) getDataProjectModel[i].dataValues.logo = '/project/get/logo/' + getDataProjectModel[i].dataValues.id;
-
-      const getDataProjectContributorsModel = await this.ProjectContributorsModel.findAll({
-        where: {
-          project_id: getDataProjectModel[i].dataValues.id
-        }
-      });
-      
-      if(getDataProjectContributorsModel.length !== 0) {
-        const getDataUserModel = await this.UserModel.findAll({
-          where: {
-            id: {
-              [Op.in]: getDataProjectContributorsModel.map(val => val.dataValues.user_id)
-            }
-          }
-        });
-        
-        if(userId) {
-          getDataProjectModel[i].dataValues.contributors = [];
-          for(let j in getDataUserModel) {
-            const getDataFollowingModel = await this.FollowingModel.findOne({
-              where: {
-                user_id: userId,
-                follow_user_id: getDataUserModel[j].dataValues.id
-              }
-            });
-
-            getDataProjectModel[i].dataValues.contributors.push({
-              user_id: getDataUserModel[j].dataValues.id,
-              name: getDataUserModel[j].dataValues.name,
-              username: getDataUserModel[j].dataValues.username,
-              image: '/profile/get/photo' + getDataUserModel[j].dataValues.id,
-              isFollowed: getDataFollowingModel !== null ? true : false
-            });
-          }
-        } else {
-          getDataProjectModel[i].dataValues.contributors = getDataUserModel.map(val => {
-            return {
-              user_id: val.dataValues.id,
-              name: val.dataValues.name,
-              username: val.dataValues.username,
-              image: '/profile/get/photo' + val.dataValues.id,
-              isFollowed: false
-            }
-          });
-        }
-      } else {
-        getDataProjectModel[i].dataValues.contributors = null;
-      }
-
-      const getDataProjectCategoryModel = await this.ProjectCategoryModel.findAll({
-        where: {
-          project_id: getDataProjectModel[i].dataValues.id
-        },
-      });
-      
-      if(getDataProjectCategoryModel.length !== 0) {
-        const getDataCategoryModel = await this.CategoryModel.findAll({
-          where: {
-            id: {
-              [Op.in]: getDataProjectCategoryModel.map(val => val.dataValues.category_id)
-            }
-          }
-        });
-
-        for(let j in getDataCategoryModel) {
-          if(getDataCategoryModel[j].dataValues.name === 'Other') {
-            const indexOther = getDataProjectCategoryModel.findIndex(val => val.dataValues.category_id === getDataCategoryModel[j].dataValues.id);
-            getDataCategoryModel[j].dataValues.name = getDataProjectCategoryModel[indexOther].dataValues.other;
-          }
-        }
-
-        getDataProjectModel[i].dataValues.categories = getDataCategoryModel.map(val => val.dataValues);
-      } else {
-        getDataProjectModel[i].dataValues.categories = null;
-      }
-
-      const getDataProjectThumbnailModel = await this.ProjectThumbnailModel.findOne({
-        where: {
-          project_id: getDataProjectModel[i].dataValues.id
-        }
-      });
-      
-      if(getDataProjectThumbnailModel !== null) {
-        getDataProjectModel[i].dataValues.thumbnail = {};
-
-        if(getDataProjectThumbnailModel.dataValues.method === 1) {
-          getDataProjectModel[i].dataValues.thumbnail.isUrl = false;
-          getDataProjectModel[i].dataValues.thumbnail.data = '/project/get/thumbnail/' + getDataProjectModel[i].dataValues.id;
-        } else {
-          getDataProjectModel[i].dataValues.thumbnail.isUrl = true;
-          getDataProjectModel[i].dataValues.thumbnail.data = getDataProjectThumbnailModel.dataValues.url;
-        }
-      } else {
-        getDataProjectModel[i].dataValues.thumbnail = null;
-      }
-
-      if(userId) {
-        const getDataProjectLikesModel = await this.ProjectLikesModel.findOne({
-          where: {
-            project_id: getDataProjectModel[i].dataValues.id,
-            user_id: userId
-          }
-        });
-  
-        getDataProjectModel[i].dataValues.isLiked = getDataProjectLikesModel !== null ? true : false;
-      } else {
-        getDataProjectModel[i].dataValues.isLiked = false;
-      }
-    }
     
-    return getDataProjectModel;
+    return this.getListPreviewProjects(getDataProjectModel, userId);
   }
 
   // For You Page Service
@@ -1008,11 +902,7 @@ class ProjectService {
             id: {
               [Op.in]: getDataProjectContributorsModel.map(val => val.dataValues.user_id)
             }
-          },
-          order: [
-            [this.server.model.db.literal(`CASE WHEN name = 'Other' THEN 1 ELSE 0 END`), 'ASC'],
-            ['name', 'ASC']
-          ]
+          }
         });
         
         if(userId) {
@@ -1060,7 +950,11 @@ class ProjectService {
             id: {
               [Op.in]: getDataProjectCategoryModel.map(val => val.dataValues.category_id)
             }
-          }
+          },
+          order: [
+            [this.server.model.db.literal(`CASE WHEN name = 'Other' THEN 1 ELSE 0 END`), 'ASC'],
+            ['name', 'ASC']
+          ]
         });
 
         for(let j in getDataCategoryModel) {
