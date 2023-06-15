@@ -4,6 +4,8 @@ import ProjectModel from "../../models/Project.model.js";
 import ProjectLikesModel from "../../models/ProjectLikes.model.js";
 import ProjectCommentsModel from "../../models/ProjectComments.model.js";
 
+import SpamDetector from "../../helpers/SpamDetector.js";
+
 class ActivityService {
   constructor(server) {
     this.server = server;
@@ -125,7 +127,9 @@ class ActivityService {
       }
     });
 
-    if(getDataProjectCommentsModel.length === 3) return -2;
+    if(getDataProjectCommentsModel.length >= 3) {
+      if(SpamDetector(getDataProjectCommentsModel.map((val) => val.createdAt)) === true) return -2;
+    }
 
     await this.ProjectCommentsModel.create({ project_id: projectId, user_id: userId, comment, createdAt: new Date() });
     return 1;
