@@ -139,18 +139,32 @@ class Profile {
   async searchProfile(username, limit, userId) {
     const getDataUserModel = await this.UserModel.findAll({
       where: {
-        username: {
-          [Op.substring]:  `%${username}%`
-        },
+        [Op.or]: [
+          {
+            username: {
+              [Op.substring]: `%${username}%`
+            }
+          },
+          {
+            name: {
+              [Op.substring]: `%${username}%`
+            }
+          }
+        ],
         ...(userId ? {
           id: {
             [Op.ne]: userId
-          },
-          verif_email_upi: true
-        } : {})
+          }
+        } : {}),
+        verif_email_upi: true
       },
       order: [
-        [this.server.model.db.literal(`LOCATE('${username}', username)`)], // Sort by similarity
+        [this.server.model.db.literal(`CASE
+          WHEN username LIKE '%${username}%' THEN 0
+          WHEN name LIKE '%${username}%' THEN 1
+          ELSE 2
+          END`)],
+        [this.server.model.db.literal(`LOCATE('${username}', username)`)]
       ],
       limit,
       attributes: [
