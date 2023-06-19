@@ -61,7 +61,12 @@ class Profile {
 
   async getProfile(username, userId) {
     const getDataUserModel = await this.UserModel.findOne({
-      where: { username, verif_email_upi: true },
+      where: {
+        username,
+        verif_email_upi: true,
+        flag_deactivated: false,
+        flag_takedown: false
+      },
       attributes: [
         'id',
         'username',
@@ -156,7 +161,9 @@ class Profile {
             [Op.ne]: userId
           }
         } : {}),
-        verif_email_upi: true
+        verif_email_upi: true,
+        flag_deactivated: false,
+        flag_takedown: false
       },
       order: [
         [this.server.model.db.literal(`CASE
@@ -195,7 +202,9 @@ class Profile {
         id: {
           [Op.in]:  this.server.model.db.literal(`(SELECT follow_user_id FROM following WHERE user_id = "${targetUserId}")`)
         },
-        verif_email_upi: true
+        verif_email_upi: true,
+        flag_deactivated: false,
+        flag_takedown: false
       },
       attributes: [
         'id',
@@ -213,7 +222,9 @@ class Profile {
         id: {
           [Op.in]:  this.server.model.db.literal(`(SELECT user_id FROM following WHERE follow_user_id = "${targetUserId}")`)
         },
-        verif_email_upi: true
+        verif_email_upi: true,
+        flag_deactivated: false,
+        flag_takedown: false
       },
       attributes: [
         'id',
