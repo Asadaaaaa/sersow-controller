@@ -18,6 +18,9 @@ class ProjectRoute extends Primary {
     // --- Publish Project
     this.API.post(this.endpointPrefix + '/publish', this.AuthorizationMiddleware.check(), (req, res) => this.ProjectController.publishProject(req, res));
 
+    // --- Delete Project
+    this.API.post(this.endpointPrefix + '/delete/:projectId', this.AuthorizationMiddleware.check(), (req, res) => this.ProjectController.deleteProject(req, res));
+
     // -- Get Category Project
     this.API.get(this.endpointPrefix + '/get/category', (req, res) => this.ProjectController.getCategoryProject(req, res));
 

@@ -448,6 +448,25 @@ class ProjectController {
     ));
   }
 
+  async deleteProject(req, res) {
+    const { userId } = req.middlewares.authorization;
+    const { projectId } = req.params;
+
+    const deleteProjectSrv = await this.ProjectService.deleteProject(userId, projectId);
+    
+    if(deleteProjectSrv === -1) res.status(404).json(this.ResponsePreset.resErr(
+      404,
+      'Not Found, Project Not Found',
+      'service',
+      { code: -1 }
+    ));
+
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      null
+    ));
+  }
+
   async getDetails(req, res) {
     const { projectId } = req.params;
     const { userId } = req.middlewares.authorization;

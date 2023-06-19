@@ -47,10 +47,14 @@ class ProjectService {
     let datetime = new Date();
 
     if (id !== null) {
-      const getDataProjectModel = await this.ProjectModel.findOne({ where: { id } });
+      const getDataProjectModel = await this.ProjectModel.findOne({ where: {
+        id,
+        user_id: userId,
+        flag_deleted: false,
+        flag_takedown: false
+      }});
 
       if (getDataProjectModel === null) return -1;
-      if (getDataProjectModel.dataValues.id !== userId) return -1;
       if (isPublished === false && getDataProjectModel.dataValues.published === true) return -2;
 
       if(getDataProjectModel.dataValues.published === true) datetime = new Date(getDataProjectModel.dataValues.published_datetime);
@@ -392,10 +396,25 @@ class ProjectService {
     return getManageProject;
   }
 
+  async deleteProject(userId, projectId) {
+    const [count] = await this.ProjectModel.update({ flag_deleted: true }, {
+      where: {
+        id: projectId,
+        user_id: userId,
+        flag_takedown: false
+      }
+    });
+
+    if(count === 0) return -1;
+    return 1;
+  }
+
   async getDetails(projectId, userId) {
     const getDataProjectModel = await this.ProjectModel.findOne({
       where: {
-        id: projectId
+        id: projectId,
+        flag_deleted: false,
+        flag_takedown: false
       },
       attributes: [
         'id',
@@ -520,7 +539,7 @@ class ProjectService {
             user_id: getDataUserModel[j].dataValues.id,
             name: getDataUserModel[j].dataValues.name,
             username: getDataUserModel[j].dataValues.username,
-            image: '/profile/get/photo' + getDataUserModel[j].dataValues.id,
+            image: '/profile/get/photo/' + getDataUserModel[j].dataValues.id,
             isFollowed: getDataFollowingModel !== null ? true : false
           });
         }
@@ -530,7 +549,7 @@ class ProjectService {
             user_id: val.dataValues.id,
             name: val.dataValues.name,
             username: val.dataValues.username,
-            image: '/profile/get/photo' + val.dataValues.id,
+            image: '/profile/get/photo/' + val.dataValues.id,
             isFollowed: false
           }
         });
@@ -742,7 +761,9 @@ class ProjectService {
     const getDataProjectModel = await this.ProjectModel.findAll({
       where: {
         user_id: userId,
-        published: false
+        published: false,
+        flag_deleted: false,
+        flag_takedown: false
       },
       order: [
         ['published_datetime', 'DESC']
@@ -763,7 +784,9 @@ class ProjectService {
     const getDataProjectModel = await this.ProjectModel.findAll({
       where: {
         user_id: targetUserId,
-        published: true
+        published: true,
+        flag_deleted: false,
+        flag_takedown: false
       },
       order: [
         ['published_datetime', 'DESC']
@@ -786,7 +809,9 @@ class ProjectService {
         id: {
           [Op.in]: this.server.model.db.literal(`(SELECT project_id FROM project_contributors WHERE user_id = "${targetUserId}")`)
         },
-        published: true
+        published: true,
+        flag_deleted: false,
+        flag_takedown: false
       },
       order: [
         ['published_datetime', 'DESC']
@@ -810,7 +835,9 @@ class ProjectService {
         published: true,
         ...(following === "true" && userId ? { user_id: {
           [Op.in]: this.server.model.db.literal(`(SELECT follow_user_id FROM following WHERE user_id = '${userId}')`)
-        }} : {})
+        }} : {}),
+        flag_deleted: false,
+        flag_takedown: false
       },
       order: [['published_datetime', 'DESC']],
       offset: (offset - 1) * limit,
@@ -858,7 +885,9 @@ class ProjectService {
         title: {
           [Op.substring]:  `%${title}%`
         },
-        published: true
+        published: true,
+        flag_deleted: false,
+        flag_takedown: false
       },
       order: [
         ['published_datetime', 'DESC']
@@ -919,7 +948,7 @@ class ProjectService {
               user_id: getDataUserModel[j].dataValues.id,
               name: getDataUserModel[j].dataValues.name,
               username: getDataUserModel[j].dataValues.username,
-              image: '/profile/get/photo' + getDataUserModel[j].dataValues.id,
+              image: '/profile/get/photo/' + getDataUserModel[j].dataValues.id,
               isFollowed: getDataFollowingModel !== null ? true : false
             });
           }
@@ -929,7 +958,7 @@ class ProjectService {
               user_id: val.dataValues.id,
               name: val.dataValues.name,
               username: val.dataValues.username,
-              image: '/profile/get/photo' + val.dataValues.id,
+              image: '/profile/get/photo/' + val.dataValues.id,
               isFollowed: false
             }
           });
