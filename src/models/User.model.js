@@ -57,6 +57,16 @@ class User{
       createdAt: {
         type: DataTypes.DATE,
         allowNull: false
+      },
+      flag_deactivated: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      },
+      flag_takedown: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
       }
     }, {
       tableName: 'users',
