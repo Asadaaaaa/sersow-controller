@@ -454,7 +454,7 @@ class ProjectController {
 
     const deleteProjectSrv = await this.ProjectService.deleteProject(userId, projectId);
     
-    if(deleteProjectSrv === -1) res.status(404).json(this.ResponsePreset.resErr(
+    if(deleteProjectSrv === -1) return res.status(404).json(this.ResponsePreset.resErr(
       404,
       'Not Found, Project Not Found',
       'service',
