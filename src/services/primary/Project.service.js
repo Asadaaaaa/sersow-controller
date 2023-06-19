@@ -540,7 +540,8 @@ class ProjectService {
             name: getDataUserModel[j].dataValues.name,
             username: getDataUserModel[j].dataValues.username,
             image: '/profile/get/photo/' + getDataUserModel[j].dataValues.id,
-            isFollowed: getDataFollowingModel !== null ? true : false
+            isFollowed: getDataFollowingModel !== null ? true : false,
+            isMyProfile: getDataUserModel[j].dataValues.id === userId ? true : false
           });
         }
       } else {
@@ -550,7 +551,8 @@ class ProjectService {
             name: val.dataValues.name,
             username: val.dataValues.username,
             image: '/profile/get/photo/' + val.dataValues.id,
-            isFollowed: false
+            isFollowed: false,
+            isMyProfile: false
           }
         });
       }
@@ -949,7 +951,8 @@ class ProjectService {
               name: getDataUserModel[j].dataValues.name,
               username: getDataUserModel[j].dataValues.username,
               image: '/profile/get/photo/' + getDataUserModel[j].dataValues.id,
-              isFollowed: getDataFollowingModel !== null ? true : false
+              isFollowed: getDataFollowingModel !== null ? true : false,
+              isMyProfile: getDataUserModel[j].dataValues.id === userId ? true : false
             });
           }
         } else {
@@ -959,7 +962,8 @@ class ProjectService {
               name: val.dataValues.name,
               username: val.dataValues.username,
               image: '/profile/get/photo/' + val.dataValues.id,
-              isFollowed: false
+              isFollowed: false,
+              isMyProfile: false
             }
           });
         }
