@@ -34,6 +34,16 @@ class Project {
       published_datetime: {
         type: DataTypes.DATE,
         allowNull: false
+      },
+      flag_deleted: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      },
+      flag_takedown: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
       }
     }, {
       tableName: 'project',
