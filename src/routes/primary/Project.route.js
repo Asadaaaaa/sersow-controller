@@ -26,6 +26,8 @@ class ProjectRoute extends Primary {
 
     this.API.get(this.endpointPrefix + '/get/manage/:projectId', this.AuthorizationMiddleware.check(), (req, res) => this.ProjectController.getManageProject(req, res));
     this.API.get(this.endpointPrefix + '/get/details/:projectId', this.AuthorizationMiddleware.check(), (req, res) => this.ProjectController.getDetails(req, res));
+    
+    this.API.get(this.endpointPrefix + '/get/contibutors/:projectId', this.AuthorizationMiddleware.check(), (req, res) => this.ProjectController.getContributors(req, res));
     this.API.get(this.endpointPrefix + '/get/logo/:projectId', (req, res) => this.ProjectController.getLogo(req, res));
     this.API.get(this.endpointPrefix + '/get/thumbnail/:projectId', (req, res) => this.ProjectController.getThumbnail(req, res));
     this.API.get(this.endpointPrefix + '/get/preview/:sort/:projectId', (req, res) => this.ProjectController.getPreviewImage(req, res));

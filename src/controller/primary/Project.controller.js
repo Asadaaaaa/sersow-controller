@@ -504,6 +504,26 @@ class ProjectController {
     ))
   }
 
+  // --- Get Contributors Project
+  async getContributors(req, res) {
+    const { userId } = req.middlewares.authorization;
+    const { projectId } = req.params;
+
+    const getContributorsSrv = await this.ProjectService.getContributors(userId, projectId);
+    
+    if(getContributorsSrv === -1) return res.status(404).json(this.ResponsePreset.resErr(
+      404,
+      'Not Found, Project Not Found',
+      'service',
+      { code: -1 }
+    ));
+    
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      getContributorsSrv
+    )); 
+  }
+
   // --- Get Logo Project
   async getLogo(req, res) {
     const { projectId } = req.params;
