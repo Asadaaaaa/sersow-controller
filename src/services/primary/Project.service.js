@@ -209,18 +209,17 @@ class ProjectService {
     try {
       const addDataProjectModel = await this.ProjectModel.upsert(
         {
+          ...(id !== null ? { id } : {}),
           user_id: userId,
-          title, description,
+          title,
+          description,
           published: isPublished,
           published_datetime: datetime
         },
         {
-          ...(id !== null ? { 
-            where: { id }
-          } : {}),
           transaction
         }
-      );
+      );      
       
       if(categories !== null) {
         const projectCategories = categories.map(categoryId => ({
@@ -783,7 +782,7 @@ class ProjectService {
       }
     });
 
-    const newData = [];
+    let newData = [];
     
     if(userId) {
       for(let j in getDataUserModel) {
