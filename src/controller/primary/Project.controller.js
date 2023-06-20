@@ -467,6 +467,24 @@ class ProjectController {
     ));
   }
 
+  async getManageProject(req, res) {
+    const { userId } = req.middlewares.authorization;
+    const { projectId } = req.params;
+
+    const getManageProjectSrv = await this.ProjectService.getManageProject(userId, projectId);
+    if(getManageProjectSrv === -1) return res.status(404).json(this.ResponsePreset.resErr(
+      404,
+      'Not Found, Project Not Found',
+      'service',
+      { code: -1 }
+    ));
+
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      getManageProjectSrv
+    )); 
+  }
+
   async getDetails(req, res) {
     const { projectId } = req.params;
     const { userId } = req.middlewares.authorization;

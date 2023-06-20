@@ -409,6 +409,138 @@ class ProjectService {
     return 1;
   }
 
+  async getManageProject(userId, projectId) {
+    const getDataProjectModel = await this.ProjectModel.findOne({
+      where: {
+        id: projectId,
+        user_id: userId,
+        flag_deleted: false,
+        flag_takedown: false
+      },
+      attributes: [
+        'id',
+        'title',
+        'description',
+        ['logo_path', 'logo'],
+        'published',
+        'published_datetime'
+      ]
+    });
+
+    if(getDataProjectModel === null) return -1;
+
+    getDataProjectModel.dataValues.logo = getDataProjectModel.dataValues.logo !== null ? this.server.FS.readFileSync(process.cwd() + getDataProjectModel.dataValues.logo).toString('base64') : null;
+    getDataProjectModel.dataValues.published_datetime = new Date(getDataProjectModel.dataValues.published_datetime).getTime();
+
+    const getDataProjectCategoryModel = await this.ProjectCategoryModel.findAll({
+      where: {
+        project_id: projectId
+      }
+    });
+    
+    if(getDataProjectCategoryModel.length !== 0) {
+      const getDataCategoryModel = await this.CategoryModel.findAll({
+        where: {
+          id: {
+            [Op.in]: getDataProjectCategoryModel.map(val => val.dataValues.category_id)
+          }
+        },
+        order: [
+          [this.server.model.db.literal(`CASE WHEN name = 'Other' THEN 1 ELSE 0 END`), 'ASC'],
+          ['name', 'ASC']
+        ]
+      });
+
+      getDataProjectModel.dataValues.categories = getDataCategoryModel.map(val => val.dataValues.id);
+
+      for(let j in getDataCategoryModel) {
+        if(getDataCategoryModel[j].dataValues.name === 'Other') {
+          const indexOther = getDataProjectCategoryModel.findIndex(val => val.dataValues.category_id === getDataCategoryModel[j].dataValues.id);
+          
+          getDataProjectModel.dataValues.otherCtg = getDataProjectCategoryModel[indexOther].dataValues.other;
+        }
+      }
+    } else {
+      getDataProjectModel.dataValues.categories = null;
+      getDataProjectModel.dataValues.otherCtg = null;
+    }
+
+    const getDataProjectThumbnailModel = await this.ProjectThumbnailModel.findOne({
+      where: {
+        project_id: projectId
+      },
+      plain: true
+    });
+
+    if(getDataProjectThumbnailModel !== null) {
+      getDataProjectModel.dataValues.thumbnail = {
+        isUrl: getDataProjectThumbnailModel.method === 1 ? false : true,
+        url: getDataProjectThumbnailModel.method === 1 ? this.server.FS.readFileSync(process.cwd() + getDataProjectThumbnailModel.url).toString('base64') : getDataProjectThumbnailModel.dataValues.url
+      }
+    } else {
+      getDataProjectModel.dataValues.thumbnail = null;
+    }
+
+    const getDataProjectPreviewModel = await this.ProjectPreviewModel.findAll({
+      where: {
+        project_id: projectId
+      },
+      order: [
+        ['sort', 'ASC']
+      ]
+    });
+
+    getDataProjectModel.dataValues.image1 = getDataProjectPreviewModel[0] ?  this.server.FS.readFileSync(process.cwd() + getDataProjectPreviewModel[0].dataValues.path).toString('base64') : null;
+    getDataProjectModel.dataValues.image2 = getDataProjectPreviewModel[1] ?  this.server.FS.readFileSync(process.cwd() + getDataProjectPreviewModel[1].dataValues.path).toString('base64') : null;
+    getDataProjectModel.dataValues.image3 = getDataProjectPreviewModel[2] ?  this.server.FS.readFileSync(process.cwd() + getDataProjectPreviewModel[2].dataValues.path).toString('base64') : null;
+
+    const getDataProjectFilesModel = await this.ProjectFilesModel.findAll({
+      where: {
+        project_id: projectId
+      },
+      order: [['type', 'ASC']]
+    });
+
+    getDataProjectModel.dataValues.program = null;
+    getDataProjectModel.dataValues.paper = null;
+    getDataProjectModel.dataValues.code = null;
+
+    if(getDataProjectFilesModel.length !== 0) {
+      getDataProjectFilesModel.forEach(val => {
+        if(val.dataValues.type === 1) getDataProjectModel.dataValues.program = {
+          isUrl: val.dataValues.method === 1 ? false : true,
+          url: val.dataValues.method === 1 ? this.server.FS.readFileSync(process.cwd() + val.dataValues.url).toString('base64') : val.dataValues.url,
+        }
+        
+        if(val.dataValues.type === 2) getDataProjectModel.dataValues.paper = {
+          isUrl: val.dataValues.method === 1 ? false : true,
+          url: val.dataValues.method === 1 ? this.server.FS.readFileSync(process.cwd() + val.dataValues.path).toString('base64') : val.dataValues.url,
+        }
+
+        if(val.dataValues.type === 3) getDataProjectModel.dataValues.code = {
+          isUrl: val.dataValues.method === 1 ? false : true,
+          url: val.dataValues.method === 1 ? this.server.FS.readFileSync(process.cwd() + val.dataValues.path).toString('base64') : val.dataValues.url,
+        }
+      });
+    }
+
+    const getDataProjectTagsModel = await this.ProjectTagsModel.findAll({
+      where: {
+        project_id: projectId
+      }
+    });    
+    getDataProjectModel.dataValues.tags = getDataProjectTagsModel.length !== 0 ? getDataProjectTagsModel.map((val) => val.dataValues.name) : null;
+
+    const getDataProjectContributorsModel = await this.ProjectContributorsModel.findAll({
+      where: {
+        project_id: getDataProjectModel.dataValues.id
+      }
+    });
+    getDataProjectModel.dataValues.contributors = getDataProjectContributorsModel.length !== 0 ? getDataProjectContributorsModel.map(val => val.dataValues.id) : null;
+
+    return getDataProjectModel.dataValues;
+  }
+
   async getDetails(projectId, userId) {
     const getDataProjectModel = await this.ProjectModel.findOne({
       where: {
@@ -602,8 +734,6 @@ class ProjectService {
           url: val.dataValues.method === 1 ? '/project/get/files/' + val.dataValues.type + '/' + projectId : val.dataValues.url,
         }
       });
-    } else {
-      getDataProjectModel.dataValues.preview = null;
     }
 
     const getDataProjectLikesModel = await this.ProjectLikesModel.findAll({
