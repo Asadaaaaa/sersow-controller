@@ -168,7 +168,7 @@ class ActivityController {
 
     return res.status(200).json(this.ResponsePreset.resOK(
       'OK',
-      null
+      getCommentProjectSrv
     ));
   }
 

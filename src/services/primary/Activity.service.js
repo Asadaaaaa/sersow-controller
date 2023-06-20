@@ -131,8 +131,9 @@ class ActivityService {
       if(SpamDetector(getDataProjectCommentsModel.map((val) => val.createdAt)) === true) return -2;
     }
 
-    await this.ProjectCommentsModel.create({ project_id: projectId, user_id: userId, comment, createdAt: new Date() });
-    return 1;
+    const data = await this.ProjectCommentsModel.create({ project_id: projectId, user_id: userId, comment, createdAt: new Date() });
+    
+    return { commentId: data.id };
   }
   
   async delCommentProject(projectId, userId, commentId) {
