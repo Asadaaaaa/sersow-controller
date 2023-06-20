@@ -785,7 +785,10 @@ class ProjectService {
         id: {
           [Op.in]: [getDataProjectModel.dataValues.user_id, ...getDataProjectContributorsModel.map(val => val.dataValues.user_id)]
         }
-      }
+      },
+      order: [
+        [this.server.model.db.literal(`CASE WHEN id = '${getDataProjectModel.dataValues.user_id}' THEN 1 ELSE 0 END`), 'DESC']
+      ]
     });
 
     let newData = [];
