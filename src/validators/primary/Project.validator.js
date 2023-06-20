@@ -36,7 +36,7 @@ class ProjectValidator {
       },
       otherCtg: {
         type: 'string',
-        maxLength: 15,
+        maxLength: 30,
         minLength: 1,
         nullable: true
       },
