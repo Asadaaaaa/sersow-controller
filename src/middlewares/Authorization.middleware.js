@@ -80,7 +80,7 @@ class Authorization {
 
       // Project
       case req.path.endsWith('/project/get/details/' + req.params.projectId): return true;
-      case req.path.endsWith('/project/get/logo/' + req.params.projectId): return true;
+      case req.path.endsWith('/project/get/contibutors/' + req.params.projectId): return true;
       case req.path.endsWith('/project/trends/project'): return true;
       case req.path.endsWith('/project/get/user/' + req.params.targetUserId): return true;
       case req.path.endsWith('/project/get/collabs/' + req.params.targetUserId): true;
