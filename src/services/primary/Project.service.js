@@ -766,20 +766,29 @@ class ProjectService {
   }
 
   async getContributors(userId, projectId) {
+    const getDataProjectModel = await this.ProjectModel.findOne({
+      where: {
+        id: projectId
+      }
+    });
+
+    if(getDataProjectModel === null) return -1;
+
     const getDataProjectContributorsModel = await this.ProjectContributorsModel.findAll({
       where: {
         project_id: projectId
       }
     });
 
-    if(getDataProjectContributorsModel.length === 0) return -1;
-
     const getDataUserModel = await this.UserModel.findAll({
       where: {
         id: {
-          [Op.in]: getDataProjectContributorsModel.map(val => val.dataValues.user_id)
+          [Op.in]: [getDataProjectModel.dataValues.user_id, ...getDataProjectContributorsModel.map(val => val.dataValues.user_id)]
         }
-      }
+      },
+      order: [
+        [this.server.model.db.literal(`CASE WHEN id = '${getDataProjectModel.dataValues.user_id}' THEN 1 ELSE 0 END`), 'DESC']
+      ]
     });
 
     let newData = [];
