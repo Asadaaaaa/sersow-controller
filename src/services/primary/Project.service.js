@@ -412,6 +412,18 @@ class ProjectService {
     return 1;
   }
 
+  async deleteCollabs(userId, projectId) {
+    const [affectedCountProjectContributorsModel] = await this.ProjectContributorsModel.destroy({
+      where: {
+        user_id: userId,
+        project_id: projectId
+      }
+    });
+
+    if(affectedCountProjectContributorsModel === 0) return -1;
+    return 1;
+  }
+
   async getManageProject(userId, projectId) {
     const getDataProjectModel = await this.ProjectModel.findOne({
       where: {

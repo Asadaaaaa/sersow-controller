@@ -20,6 +20,7 @@ class ProjectRoute extends Primary {
 
     // --- Delete Project
     this.API.delete(this.endpointPrefix + '/delete/:projectId', this.AuthorizationMiddleware.check(), (req, res) => this.ProjectController.deleteProject(req, res));
+    this.API.delete(this.endpointPrefix + '/delete/collabs/:projectId', this.AuthorizationMiddleware.check(), (req, res) => this.ProjectController.deleteCollabs(req, res));
 
     // -- Get Category Project
     this.API.get(this.endpointPrefix + '/get/category', (req, res) => this.ProjectController.getCategoryProject(req, res));
