@@ -238,6 +238,7 @@ class Profile {
 
   async getListUsersPreview(dataUsersModel, userId) {
     for(let i in dataUsersModel) {
+      dataUsersModel[i].dataValues.nameSubstr = dataUsersModel[i].dataValues.name.length > 20 ? dataUsersModel[i].dataValues.name.substring(0, 20) + "..." : dataUsersModel[i].dataValues.name;
       dataUsersModel[i].dataValues.image = '/profile/get/photo/' + dataUsersModel[i].dataValues.id;
       dataUsersModel[i].dataValues.isMyProfile = dataUsersModel[i].dataValues.id === userId ? true : false;
 
