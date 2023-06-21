@@ -467,6 +467,25 @@ class ProjectController {
     ));
   }
 
+  async deleteCollabs(req, res) {
+    const { userId } = req.middlewares.authorization;
+    const { projectId } = req.params;
+
+    const deleteCollabsSrv = await this.ProjectService.deleteCollabs(userId, projectId);
+
+    if(deleteCollabsSrv === -1) return res.status(404).json(this.ResponsePreset.resErr(
+      404,
+      'Not Found, Collabs Data Not Found',
+      'service',
+      { code: -1 }
+    ));
+
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      null
+    ));
+  }
+
   async getManageProject(req, res) {
     const { userId } = req.middlewares.authorization;
     const { projectId } = req.params;
