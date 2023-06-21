@@ -3,6 +3,8 @@ import FollowingModel from "../../models/Following.model.js";
 import FollowCounterModel from "../../models/FollowCounter.model.js";
 import ProjectModel from "../../models/Project.model.js";
 import UserRank from "../../models/UserRank.model.js";
+import VerifiedType from "../../models/VerifiedType.model.js";
+import UserVerifiedModel from "../../models/UserVerified.model.js";
 
 // Library
 import { Op } from "sequelize";
@@ -18,6 +20,8 @@ class Profile {
     this.FollowCounterModel = new FollowCounterModel(this.server).table;
     this.ProjectModel = new ProjectModel(this.server).table;
     this.UserRank = new UserRank(this.server).table;
+    this.VerifiedType = new VerifiedType(this.server).table;
+    this.UserVerifiedModel = new UserVerifiedModel(this.server).table;
   }
 
   async updateProfile(userId, name, bio, image, website) {
@@ -100,6 +104,25 @@ class Profile {
     }
 
     if(newData.image) newData.image = '/profile/get/photo/' + newData.id;
+    
+    const getDataUserVerifiedModel = await this.UserVerifiedModel.findOne({
+      where: {
+        user_id: newData.id
+      }
+    });
+
+    if(getDataUserVerifiedModel !== null) {
+      const getDataVerifiedType = await this.VerifiedType.findOne({
+        where: {
+          id: getDataUserVerifiedModel.dataValues.verified_type_id
+        }
+      });
+
+      newData.verified = getDataVerifiedType !== null ? {
+        type: getDataVerifiedType.dataValues.type,
+        logo: this.server.FS.readFileSync(process.cwd() + getDataVerifiedType.dataValues.logo_path).toString('base64')
+      } : null;
+    } else newData.verified = null;
     
     newData.createdAt = new Date(newData.createdAt).getTime();
     newData.total_following = getDataFollowCounterModel.dataValues.total_following;
@@ -241,6 +264,25 @@ class Profile {
       dataUsersModel[i].dataValues.nameSubstr = dataUsersModel[i].dataValues.name.length > 20 ? dataUsersModel[i].dataValues.name.substring(0, 20) + "..." : dataUsersModel[i].dataValues.name;
       dataUsersModel[i].dataValues.image = '/profile/get/photo/' + dataUsersModel[i].dataValues.id;
       dataUsersModel[i].dataValues.isMyProfile = dataUsersModel[i].dataValues.id === userId ? true : false;
+      
+      const getDataUserVerifiedModel = await this.UserVerifiedModel.findOne({
+        where: {
+          user_id: dataUsersModel[i].dataValues.id
+        }
+      });
+
+      if(getDataUserVerifiedModel !== null) {
+        const getDataVerifiedType = await this.VerifiedType.findOne({
+          where: {
+            id: getDataUserVerifiedModel.dataValues.verified_type_id
+          }
+        });
+
+        dataUsersModel[i].dataValues.verified = getDataVerifiedType !== null ? {
+          type: getDataVerifiedType.dataValues.type,
+          logo: this.server.FS.readFileSync(process.cwd() + getDataVerifiedType.dataValues.logo_path).toString('base64')
+        } : null;
+      } else dataUsersModel[i].dataValues.verified = null;
 
       if(userId) {
         const getDataFollowingModel = await this.FollowingModel.findOne({
