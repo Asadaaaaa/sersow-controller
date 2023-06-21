@@ -1,6 +1,8 @@
 import UserModel from '../../models/User.model.js';
 import VerifCodeModel from '../../models/VerifCode.model.js';
 import ForgotPassword from '../../models/ForgotPassword.model.js';
+import VerifiedType from "../../models/VerifiedType.model.js";
+import UserVerifiedModel from "../../models/UserVerified.model.js";
 
 // Library
 import JWT from 'jsonwebtoken';
@@ -14,6 +16,8 @@ class Auth {
     this.UserModel = new UserModel(this.server).table;
     this.VerifCodeModel = new VerifCodeModel(this.server).table;
     this.ForgotPassword = new ForgotPassword(this.server).table;
+    this.VerifiedType = new VerifiedType(this.server).table;
+    this.UserVerifiedModel = new UserVerifiedModel(this.server).table;
   }
 
   generateToken(userId, notVerified) { 
@@ -295,8 +299,27 @@ class Auth {
     if(getDataUserModel === null) return -1;
 
     const newData = getDataUserModel.get({ plain: true });
-    newData.image =  '/profile/get/photo/' + newData.id;
     newData.nameSubstr = newData.name.length > 20 ? newData.name.substring(0, 20) + '...' : newData.name;
+    newData.image =  '/profile/get/photo/' + newData.id;
+
+    const getDataUserVerifiedModel = await this.UserVerifiedModel.findOne({
+      where: {
+        user_id: newData.id
+      }
+    });
+
+    if(getDataUserVerifiedModel !== null) {
+      const getDataVerifiedType = await this.VerifiedType.findOne({
+        where: {
+          id: getDataUserVerifiedModel.dataValues.verified_type_id
+        }
+      });
+
+      newData.verified = getDataVerifiedType !== null ? {
+        type: getDataVerifiedType.dataValues.type,
+        logo: this.server.FS.readFileSync(process.cwd() + getDataVerifiedType.dataValues.logo_path).toString('base64')
+      } : null;
+    } else newData.verified = null;
 
     return newData;
   }

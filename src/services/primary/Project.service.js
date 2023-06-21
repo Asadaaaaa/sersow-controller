@@ -12,6 +12,8 @@ import ProjectRankModel from "../../models/ProjectRank.model.js";
 import ProjectLikesModel from "../../models/ProjectLikes.model.js";
 import ProjectCommentsModel from "../../models/ProjectComments.model.js";
 import FollowingModel from "../../models/Following.model.js";
+import VerifiedType from "../../models/VerifiedType.model.js";
+import UserVerifiedModel from "../../models/UserVerified.model.js";
 
 // Library
 import { Op } from "sequelize";
@@ -35,6 +37,8 @@ class ProjectService {
     this.ProjectLikesModel = new ProjectLikesModel(this.server).table;
     this.ProjectCommentsModel = new ProjectCommentsModel(this.server).table;
     this.FollowingModel = new FollowingModel(this.server).table;
+    this.VerifiedType = new VerifiedType(this.server).table;
+    this.UserVerifiedModel = new UserVerifiedModel(this.server).table;
   }
 
   // Functon For Edit Project
@@ -593,6 +597,25 @@ class ProjectService {
       username: getDataUserModel.dataValues.username,
       image: '/profile/get/photo/' + getDataUserModel.dataValues.id
     }
+
+    const getDataUserVerifiedModel = await this.UserVerifiedModel.findOne({
+      where: {
+        user_id: getDataProjectModel.dataValues.owner.id
+      }
+    });
+
+    if(getDataUserVerifiedModel !== null) {
+      const getDataVerifiedType = await this.VerifiedType.findOne({
+        where: {
+          id: getDataUserVerifiedModel.dataValues.verified_type_id
+        }
+      });
+
+      getDataProjectModel.dataValues.owner.verified = getDataVerifiedType !== null ? {
+        type: getDataVerifiedType.dataValues.type,
+        logo: this.server.FS.readFileSync(process.cwd() + getDataVerifiedType.dataValues.logo_path).toString('base64')
+      } : null;
+    } else getDataProjectModel.dataValues.owner.verified = null;
     
     const getDataProjectCategoryModel = await this.ProjectCategoryModel.findAll({
       where: {
@@ -616,7 +639,6 @@ class ProjectService {
       for(let j in getDataCategoryModel) {
         if(getDataCategoryModel[j].dataValues.name === 'Other') {
           const indexOther = getDataProjectCategoryModel.findIndex(val => val.dataValues.category_id === getDataCategoryModel[j].dataValues.id);
-          console.log(getDataProjectCategoryModel[indexOther])
           getDataCategoryModel[j].dataValues.name = getDataProjectCategoryModel[indexOther].dataValues.other;
         }
       }
@@ -807,47 +829,55 @@ class ProjectService {
           [Op.in]: [getDataProjectModel.dataValues.user_id, ...getDataProjectContributorsModel.map(val => val.dataValues.user_id)]
         }
       },
+      attributes: [
+        ['id', 'user_id'],
+        'name',
+        'username'
+      ],
       order: [
         [this.server.model.db.literal(`CASE WHEN id = '${getDataProjectModel.dataValues.user_id}' THEN 1 ELSE 0 END`), 'DESC']
       ]
     });
 
-    let newData = [];
-    
-    if(userId) {
-      for(let j in getDataUserModel) {
+    for(let j in getDataUserModel) {
+      getDataUserModel[j].dataValues.nameSubstr = getDataUserModel[j].dataValues.name.length > 20 ? getDataUserModel[j].dataValues.name.substring(0, 20) + "..." : getDataUserModel[j].dataValues.name,
+      getDataUserModel[j].dataValues.image = '/profile/get/photo/' + getDataUserModel[j].dataValues.user_id;
+      getDataUserModel[j].dataValues.isMyProfile = getDataUserModel[j].dataValues.user_id === userId ? true : false;
+
+      const getDataUserVerifiedModel = await this.UserVerifiedModel.findOne({
+        where: {
+          user_id: getDataUserModel[j].dataValues.user_id
+        }
+      });
+  
+      if(getDataUserVerifiedModel !== null) {
+        const getDataVerifiedType = await this.VerifiedType.findOne({
+          where: {
+            id: getDataUserVerifiedModel.dataValues.verified_type_id
+          }
+        });
+  
+        getDataUserModel[j].dataValues.verified = getDataVerifiedType !== null ? {
+          type: getDataVerifiedType.dataValues.type,
+          logo: this.server.FS.readFileSync(process.cwd() + getDataVerifiedType.dataValues.logo_path).toString('base64')
+        } : null;
+      } else getDataUserModel[j].dataValues.verified = null;
+      
+      if(userId) {
         const getDataFollowingModel = await this.FollowingModel.findOne({
           where: {
             user_id: userId,
-            follow_user_id: getDataUserModel[j].dataValues.id
+            follow_user_id: getDataUserModel[j].dataValues.user_id
           }
         });
-
-        newData.push({
-          user_id: getDataUserModel[j].dataValues.id,
-          name: getDataUserModel[j].dataValues.name,
-          nameSubstr: getDataUserModel[j].dataValues.name.length > 20 ? getDataUserModel[j].dataValues.name.substring(0, 20) + "..." : getDataUserModel[j].dataValues.name,
-          username: getDataUserModel[j].dataValues.username,
-          image: '/profile/get/photo/' + getDataUserModel[j].dataValues.id,
-          isFollowed: getDataFollowingModel !== null ? true : false,
-          isMyProfile: getDataUserModel[j].dataValues.id === userId ? true : false
-        });
+        
+        getDataUserModel[j].dataValues.isFollowed = getDataFollowingModel !== null ? true : false;
+      } else {
+        getDataUserModel[j].dataValues.isFollowed = false;
       }
-    } else {
-      newData = getDataUserModel.map(val => {
-        return {
-          user_id: val.dataValues.id,
-          name: val.dataValues.name,
-          nameSubstr: val.dataValues.name.length > 20 ? val.dataValues.name.substring(0, 20) + "..." : val.dataValues.name,
-          username: val.dataValues.username,
-          image: '/profile/get/photo/' + val.dataValues.id,
-          isFollowed: false,
-          isMyProfile: false
-        }
-      });
     }
 
-    return newData;
+    return getDataUserModel;
   }
 
   async getLogo(projectId) {
@@ -1094,6 +1124,25 @@ class ProjectService {
         username: getDataUserModel.dataValues.username,
         image: '/profile/get/photo/' + getDataUserModel.dataValues.id
       }
+
+      const getDataUserVerifiedModel = await this.UserVerifiedModel.findOne({
+        where: {
+          user_id: dataProjectModel[i].dataValues.owner.id
+        }
+      });
+  
+      if(getDataUserVerifiedModel !== null) {
+        const getDataVerifiedType = await this.VerifiedType.findOne({
+          where: {
+            id: getDataUserVerifiedModel.dataValues.verified_type_id
+          }
+        });
+  
+        dataProjectModel[i].dataValues.owner.verified = getDataVerifiedType !== null ? {
+          type: getDataVerifiedType.dataValues.type,
+          logo: this.server.FS.readFileSync(process.cwd() + getDataVerifiedType.dataValues.logo_path).toString('base64')
+        } : null;
+      } else dataProjectModel[i].dataValues.owner.verified = null;
 
       if(dataProjectModel[i].dataValues.logo) dataProjectModel[i].dataValues.logo = '/project/get/logo/' + dataProjectModel[i].dataValues.id;
 
