@@ -296,6 +296,7 @@ class Auth {
 
     const newData = getDataUserModel.get({ plain: true });
     newData.image =  '/profile/get/photo/' + newData.id;
+    newData.nameSubstr = newData.name.length > 20 ? newData.name.substring(0, 20) + '...' : newData.name;
 
     return newData;
   }
