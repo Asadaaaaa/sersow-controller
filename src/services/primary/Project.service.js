@@ -529,13 +529,27 @@ class ProjectService {
       }
     });    
     getDataProjectModel.dataValues.tags = getDataProjectTagsModel.length !== 0 ? getDataProjectTagsModel.map((val) => val.dataValues.name) : null;
-
+    
     const getDataProjectContributorsModel = await this.ProjectContributorsModel.findAll({
       where: {
-        project_id: getDataProjectModel.dataValues.id
+        project_id: projectId
       }
     });
-    getDataProjectModel.dataValues.contributors = getDataProjectContributorsModel.length !== 0 ? getDataProjectContributorsModel.map(val => val.dataValues.id) : null;
+
+    const getDataUserModel = await this.UserModel.findAll({
+      where: {
+        id: {
+          [Op.in]: getDataProjectContributorsModel.map(val => val.dataValues.user_id)
+        }
+      }
+    });
+
+    getDataProjectModel.dataValues.contributors = getDataUserModel.length !== 0 ? getDataUserModel.map((val) => {
+      return {
+        user_id: val.dataValues.id,
+        username: val.dataValues.username
+      }
+    }) : null;
 
     return getDataProjectModel.dataValues;
   }
@@ -549,7 +563,7 @@ class ProjectService {
       },
       attributes: [
         'id',
-        ['user_id', 'owner_id'],
+        'user_id',
         'title',
         'description',
         ['logo_path', 'logo'],
@@ -559,21 +573,26 @@ class ProjectService {
     });
 
     if(getDataProjectModel === null) return -1;
-    if(getDataProjectModel.dataValues.published === false && getDataProjectModel.dataValues.owner_id !== userId) return -1;
+    if(getDataProjectModel.dataValues.published === false && getDataProjectModel.dataValues.user_id !== userId) return -1;
 
-    getDataProjectModel.dataValues.isMyProject = getDataProjectModel.dataValues.owner_id === userId ? true : false;
+    getDataProjectModel.dataValues.isMyProject = getDataProjectModel.dataValues.user_id === userId ? true : false;
     getDataProjectModel.dataValues.logo = getDataProjectModel.dataValues.logo !== null ? '/project/get/logo/' + projectId : null;
     getDataProjectModel.dataValues.published_datetime = new Date(getDataProjectModel.dataValues.published_datetime).getTime();
     
     const getDataUserModel = await this.UserModel.findOne({
       where: {
-        id: getDataProjectModel.dataValues.owner_id
+        id: getDataProjectModel.dataValues.user_id
       }
     });
     
-    getDataProjectModel.dataValues.owner_name = getDataUserModel.dataValues.name;
-    getDataProjectModel.dataValues.owner_username = getDataUserModel.dataValues.username;
-    getDataProjectModel.dataValues.owner_image = '/profile/get/photo/' + getDataProjectModel.dataValues.owner_id;
+    delete getDataProjectModel.dataValues.user_id;
+    getDataProjectModel.dataValues.owner = {
+      id: getDataUserModel.dataValues.id,
+      name: getDataUserModel.dataValues.name,
+      nameSubstr: getDataUserModel.dataValues.name.length > 20 ? getDataUserModel.dataValues.name.substring(0, 20) + "..." : getDataUserModel.dataValues.name,
+      username: getDataUserModel.dataValues.username,
+      image: '/profile/get/photo/' + getDataUserModel.dataValues.id
+    }
     
     const getDataProjectCategoryModel = await this.ProjectCategoryModel.findAll({
       where: {
@@ -725,6 +744,7 @@ class ProjectService {
       getDataProjectModel.dataValues.myIdentity = getDataUserModel ? {
         id: getDataUserModel.dataValues.id,
         name: getDataUserModel.dataValues.name,
+        nameSubstr: getDataUserModel.dataValues.name.length > 20 ? getDataUserModel.dataValues.name.substring(0, 20) + "..." : getDataUserModel.dataValues.name,
         username: getDataUserModel.dataValues.username,
         gender: getDataUserModel.dataValues.gender,
         image: '/profile/get/photo/' + getDataUserModel.dataValues.id
@@ -753,6 +773,7 @@ class ProjectService {
       getDataProjectModel.dataValues.comments.push({
         userId: getDataUserModel.dataValues.id,
         name: getDataUserModel.dataValues.name,
+        nameSubstr: getDataUserModel.dataValues.name.length > 20 ? getDataUserModel.dataValues.name.substring(0, 20) + "..." : getDataUserModel.dataValues.name,
         username: getDataUserModel.dataValues.username,
         gender: getDataUserModel.dataValues.gender,
         image: '/profile/get/photo/' + getDataUserModel.dataValues.id,
@@ -802,10 +823,10 @@ class ProjectService {
           }
         });
 
-
         newData.push({
           user_id: getDataUserModel[j].dataValues.id,
           name: getDataUserModel[j].dataValues.name,
+          nameSubstr: getDataUserModel[j].dataValues.name.length > 20 ? getDataUserModel[j].dataValues.name.substring(0, 20) + "..." : getDataUserModel[j].dataValues.name,
           username: getDataUserModel[j].dataValues.username,
           image: '/profile/get/photo/' + getDataUserModel[j].dataValues.id,
           isFollowed: getDataFollowingModel !== null ? true : false,
@@ -817,6 +838,7 @@ class ProjectService {
         return {
           user_id: val.dataValues.id,
           name: val.dataValues.name,
+          nameSubstr: val.dataValues.name.length > 20 ? val.dataValues.name.substring(0, 20) + "..." : val.dataValues.name,
           username: val.dataValues.username,
           image: '/profile/get/photo/' + val.dataValues.id,
           isFollowed: false,
@@ -921,7 +943,7 @@ class ProjectService {
       ],
       attributes: [
         'id',
-        ['user_id', 'owner_id'],
+        'user_id',
         'title',
         'description',
         ['logo_path', 'logo']
@@ -944,7 +966,7 @@ class ProjectService {
       ],
       attributes: [
         'id',
-        ['user_id', 'owner_id'],
+        'user_id',
         'title',
         'description',
         ['logo_path', 'logo']
@@ -969,7 +991,7 @@ class ProjectService {
       ],
       attributes: [
         'id',
-        ['user_id', 'owner_id'],
+        'user_id',
         'title',
         'description',
         ['logo_path', 'logo']
@@ -995,7 +1017,7 @@ class ProjectService {
       limit,
       attributes: [
         'id',
-        ['user_id', 'owner_id'],
+        'user_id',
         'title',
         'description',
         ['logo_path', 'logo']
@@ -1009,7 +1031,7 @@ class ProjectService {
     const getDataProjectRankModel = await this.ProjectRankModel.findAll({
       attributes: [
         ['project_id', 'id'],
-        ['user_id', 'owner_id'],
+        'user_id',
         'title',
         'description',
         ['logo_path', 'logo']
@@ -1046,7 +1068,7 @@ class ProjectService {
       limit: 10,
       attributes: [
         'id',
-        ['user_id', 'owner_id'],
+        'user_id',
         'title',
         'description',
         ['logo_path', 'logo']
@@ -1060,13 +1082,18 @@ class ProjectService {
     for(let i in dataProjectModel) {
       const getDataUserModel = await this.UserModel.findOne({
         where: {
-          id: dataProjectModel[i].dataValues.owner_id
+          id: dataProjectModel[i].dataValues.user_id
         }
       });
-      dataProjectModel[i].dataValues.owner_name = getDataUserModel.dataValues.name;
-      dataProjectModel[i].dataValues.owner_username = getDataUserModel.dataValues.username;
-      dataProjectModel[i].dataValues.owner_image = '/profile/get/photo/' + dataProjectModel[i].dataValues.owner_id;
-      dataProjectModel[i].dataValues.isMyProject = dataProjectModel[i].dataValues.owner_id === userId ? true : false;
+
+      delete dataProjectModel[i].dataValues.user_id;
+      dataProjectModel[i].dataValues.owner = {
+        id: getDataUserModel.dataValues.id,
+        name: getDataUserModel.dataValues.name,
+        nameSubstr: getDataUserModel.dataValues.name.length > 20 ? getDataUserModel.dataValues.name.substring(0, 20) + "..." : getDataUserModel.dataValues.name,
+        username: getDataUserModel.dataValues.username,
+        image: '/profile/get/photo/' + getDataUserModel.dataValues.id
+      }
 
       if(dataProjectModel[i].dataValues.logo) dataProjectModel[i].dataValues.logo = '/project/get/logo/' + dataProjectModel[i].dataValues.id;
 
