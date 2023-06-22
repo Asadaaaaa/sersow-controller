@@ -303,6 +303,24 @@ class Profile {
 
     return dataUsersModel;
   }
+
+  async getMasterminds() {
+    const masterminds = JSON.parse(this.server.FS.readFileSync(process.cwd() + '/server_data/resources/masterminds.json'));
+    for(let i in masterminds) {
+      const getDataUserModel = await this.UserModel.findOne({
+        where: {
+          id: masterminds[i].id
+        },
+        attributes: [
+          'username'
+        ]
+      });
+
+      masterminds[i].username = getDataUserModel !== null ? getDataUserModel.dataValues.username : null;
+    }
+    
+    return masterminds;
+  }
 }
 
 export default Profile;

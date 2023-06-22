@@ -1,0 +1,58 @@
+[
+  {
+    "order": 1,
+    "id": "30c5192b-bdde-4051-bbff-545bcff067fe",
+    "name": "Mikail Asada",
+    "jobdesk": "Tech Lead",
+    "username": null
+  },
+  {
+    "order": 2,
+    "id": "c6a9a90d-6f4e-47a1-8b8d-0ff93d46b3ba",
+    "name": "Azka Ahmad",
+    "jobdesk": "Tech Manager",
+    "username": null
+  },
+  {
+    "order": 3,
+    "id": "7bf3b872-9242-439e-812c-7548fb9ba9be",
+    "name": "Aditya Syawal",
+    "jobdesk": "Tech Designer",
+    "username": null
+  },
+  {
+    "order": 4,
+    "id": "3a4eb95e-53f9-40f9-90da-ac29e0f6f889",
+    "name": "Muhamad Talim",
+    "jobdesk": "Front-end & Back-end",
+    "username": null
+  },
+  {
+    "order": 5,
+    "id": "9fbff7ff-07dd-4206-91a0-d1745cde25f3",
+    "name": "Afwa Afini",
+    "jobdesk": "Database Designer & Back-end",
+    "username": null
+  },
+  {
+    "order": 6,
+    "id": "00ab127b-a934-417b-957f-d65e64a5619c",
+    "name": "Hanisah Fildza",
+    "jobdesk": "Front-end & Database Designer",
+    "username": null
+  },
+  {
+    "order": 7,
+    "id": "c1830f90-5331-40ac-bd84-feee6b22da84",
+    "name": "Innaka Dylee",
+    "jobdesk": "Front-end",
+    "username": null
+  },
+  {
+    "order": 8,
+    "id": "eb7cf715-e034-4259-9c1b-c597d4f80378",
+    "name": "Jefri Nichol",
+    "jobdesk": "Front-end",
+    "username": null
+  }
+]

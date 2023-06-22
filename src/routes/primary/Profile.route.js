@@ -21,6 +21,8 @@ class Profile extends Primary {
     this.API.get(this.endpointPrefix + '/get/follower/:targetUserId', this.AuthorizationMiddleware.check(), (req, res) => this.ProfileController.getFollowersUser(req, res));
     this.API.get(this.endpointPrefix + '/search/username/:username', this.AuthorizationMiddleware.check(), (req, res) => this.ProfileController.searchProfile(req, res));
     this.API.get(this.endpointPrefix + '/trends/users', this.AuthorizationMiddleware.check(), (req, res) => this.ProfileController.getTrendsUsers(req, res));
+
+    this.API.get(this.endpointPrefix + '/masterminds', (req, res) => this.ProfileController.getMasterminds(req, res));
   }
 }
 
