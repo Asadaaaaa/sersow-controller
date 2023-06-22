@@ -413,7 +413,7 @@ class ProjectService {
   }
 
   async deleteCollabs(userId, projectId) {
-    const [affectedCountProjectContributorsModel] = await this.ProjectContributorsModel.destroy({
+    const affectedCountProjectContributorsModel = await this.ProjectContributorsModel.destroy({
       where: {
         user_id: userId,
         project_id: projectId
