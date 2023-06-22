@@ -90,7 +90,10 @@ class Profile {
 
     const getDataProjectMdel = await this.ProjectModel.findAll({
       where: {
-        user_id: getDataUserModel.dataValues.id
+        user_id: getDataUserModel.dataValues.id,
+        published: true,
+        flag_deleted: false,
+        flag_takedown: false
       }
     });
 
