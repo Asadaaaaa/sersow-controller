@@ -160,5 +160,14 @@ class Profile {
       getFollowersUserSrv
     ));
   }
+
+  async getMasterminds(req, res) {
+    const getMastermindsSrv = await this.ProfileService.getMasterminds();
+
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      getMastermindsSrv
+    ));
+  }
 }
 export default Profile;
