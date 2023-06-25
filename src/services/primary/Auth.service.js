@@ -30,7 +30,7 @@ class Auth {
         ...(notVerified === true ? { notVerified } : {})
       },
       this.server.env.JWT_TOKEN_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: this.server.env.JWT_TOKEN_EXPIRED }
     )
   }
 
@@ -43,7 +43,7 @@ class Auth {
         userId
       },
       this.server.env.JWT_TOKEN_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: this.server.env.JWT_TOKEN_EXPIRED }
     );
 
     return {

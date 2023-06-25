@@ -16,8 +16,6 @@ class Handler {
     }
 
     global() {
-      this.API.use(Morgan('tiny'));
-
       this.API.use(cors({
           methods: ['GET', 'PUT', 'POST', 'DELETE', 'PATCH'],
           origin: this.server.env.MIDDLEWARE_ORIGIN
@@ -55,11 +53,53 @@ class Handler {
         next();
       });
 
-      // this.API.use((req, res, next) => {
-      //   this.server.sendLogs('New Request: ' + req.originalUrl + '\n- Header: ' + JSON.stringify(req.headers, null, 2) + '\n- Body: ' + JSON.stringify(req.body, null, 2) );
-      //   next();
-      //   return;
-      // });
+      if(this.server.env.LOG_REQUEST === "full") {
+        this.API.use((req, res, next) => {
+          const server = this.server
+          const chunks = [];
+          const originalWrite = res.write;
+          const originalEnd = res.end;
+
+          res.write = function (chunk) {
+            chunks.push(chunk);
+            originalWrite.apply(res, arguments);
+          };
+        
+          res.end = function (chunk) {
+            if (chunk) chunks.push(chunk);
+            const responseBody = JSON.parse(chunks);
+            
+            server.sendLogs('New Request: ' + req.originalUrl + '\n- Header: ' + JSON.stringify(req.headers, null, 2) + '\n- Body: ' + JSON.stringify(req.body, null, 2) + '\n- Response: ' + JSON.stringify(responseBody, null, 2));
+        
+            originalEnd.apply(res, arguments);
+          };
+          
+          next();
+          return;
+        });
+
+      } else if(this.server.env.LOG_REQUEST === "medium") {
+        this.API.use(Morgan((tokens, req, res) => {
+          const date = new Date(new Date().toLocaleString('en-US', {timeZone: 'Asia/Jakarta'}));
+          const currentDate = '[' + 
+            date.getDate() + '/' +
+            (date.getMonth() + 1) + '/' +
+            date.getHours() + ':' +
+            date.getMinutes() + ':' +
+            date.getSeconds() +
+          ']';
+
+          return [
+            '\n' + currentDate,
+            '(' + process.pid +'):',
+            tokens.method(req, res),
+            tokens.url(req, res),
+            tokens.status(req, res),
+            tokens.res(req, res, 'content-length'), '-',
+            tokens['response-time'](req, res), 'ms'
+          ].join(' ')
+        }));
+      }
     }
 }
 
