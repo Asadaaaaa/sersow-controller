@@ -55,11 +55,11 @@ class Handler {
         next();
       });
 
-      this.API.use((req, res, next) => {
-        this.server.sendLogs('New Request: ' + req.originalUrl + '\n- Header: ' + JSON.stringify(req.headers, null, 2) + '\n- Body: ' + JSON.stringify(req.body, null, 2) );
-        next();
-        return;
-      });
+      // this.API.use((req, res, next) => {
+      //   this.server.sendLogs('New Request: ' + req.originalUrl + '\n- Header: ' + JSON.stringify(req.headers, null, 2) + '\n- Body: ' + JSON.stringify(req.body, null, 2) );
+      //   next();
+      //   return;
+      // });
     }
 }
 
