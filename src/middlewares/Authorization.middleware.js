@@ -85,7 +85,7 @@ class Authorization {
       case req.path.endsWith('/project/get/user/' + req.params.targetUserId): return true;
       case req.path.endsWith('/project/get/collabs/' + req.params.targetUserId): true;
       case req.path.endsWith('/project/get/foryou'): return true;
-      case req.path.endsWith('/project/search/title/' + req.params.title): return true;
+      case req.path.endsWith('/project/search'): return true;
 
       default: return false;
     }

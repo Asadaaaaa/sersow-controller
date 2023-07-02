@@ -1094,28 +1094,109 @@ class ProjectService {
     return getDataCategoryModel;
   }
 
-  async searchProject(title, userId) {
+  async searchProject(text, category, userId) {
+    // Declare Relation
+    this.ProjectModel.hasMany(this.ProjectCategoryModel, {
+      foreignKey: 'project_id'
+    });
+    this.ProjectCategoryModel.belongsTo(this.ProjectModel, {
+      foreignKey: 'project_id'
+    });
+    
+    // Get Data
     const getDataProjectModel = await this.ProjectModel.findAll({
       where: {
-        title: {
-          [Op.substring]:  `%${title}%`
-        },
+        ...(!text ? {} : {
+          title: {
+            [Op.substring]:  `%${text}%`
+          }
+        }),
         published: true,
         flag_deleted: false,
         flag_takedown: false
       },
-      order: [
-        ['published_datetime', 'DESC']
+      include: [
+        {
+          model: this.ProjectCategoryModel,    
+          attributes: [],
+          where: {
+            ...(!category ? {} : Array.isArray(category) ? {
+              category_id: {
+                [Op.in]: category
+              }
+            } : {
+              category_id: category
+            })
+          }
+        }
       ],
-      limit: 10,
       attributes: [
         'id',
         'user_id',
         'title',
         'description',
-        ['logo_path', 'logo']
-      ]
+        ['logo_path', 'logo'],
+        'published_datetime'
+      ],
+      order: [['published_datetime', 'DESC']],
+      limit: 10
     });
+
+    // Condition Search By Tags if Data Length < 10
+    if (getDataProjectModel.length < 10 && text) {
+        // Declare Relation
+      this.ProjectModel.hasMany(this.ProjectTagsModel, {
+        foreignKey: 'project_id'
+      });
+      this.ProjectTagsModel.belongsTo(this.ProjectModel, {
+        foreignKey: 'project_id'
+      });
+      
+      const getDataProjectModelByProjectTagsModel = await this.ProjectModel.findAll({
+        where: {
+          id: {
+            [Op.notIn]: getDataProjectModel.map((val) => val.dataValues.id)
+          },
+          published: true,
+          flag_deleted: false,
+          flag_takedown: false
+        },
+        include: [
+          {
+            model: this.ProjectTagsModel,
+            attributes: [],
+            where: {
+              name: text
+            }
+          },
+          {
+            model: this.ProjectCategoryModel,
+            attributes: [],
+            where: {
+              ...(!category ? {} : Array.isArray(category) ? {
+                category_id: {
+                  [Op.in]: category
+                }
+              } : {
+                category_id: category
+              })
+            }
+          }
+        ],
+        attributes: [
+          'id',
+          'user_id',
+          'title',
+          'description',
+          ['logo_path', 'logo'],
+          'published_datetime'
+        ],
+        order: [['published_datetime', 'DESC']],
+        limit: 10 - getDataProjectModel.length
+      });
+    
+      getDataProjectModel.push(...getDataProjectModelByProjectTagsModel);
+    }
     
     return this.getListPreviewProjects(getDataProjectModel, userId);
   }
