@@ -20,7 +20,5 @@ jobs:
             git reset --hard HEAD
             git switch main
             git pull origin main
-            Asadaaaaa
-            ${{ secrets.ACCESS_TOKEN }}
             npm i
             pm2 restart sersow-controller-production
