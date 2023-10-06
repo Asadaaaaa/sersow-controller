@@ -1,12 +1,13 @@
-export default (text) => {
-  const date = new Date(new Date().toLocaleString('en-US', {timeZone: 'Asia/Jakarta'}));
-  const currentDate = '[' + 
-    date.getDate() + '/' +
-    (date.getMonth() + 1) + '/' +
-    date.getHours() + ':' +
-    date.getMinutes() + ':' +
-    date.getSeconds() +
-  ']';
+/**
+ * Logs the given text along with the current date and process ID.
+ * @param {string} text - The text to be logged.
+ */
+export default function Logger(text) {
+  if (typeof text !== 'string') {
+    console.error('Error: text must be a string');
+    return;
+  }
 
-  console.log('\n' + currentDate + ' (' + process.pid + '): ' + text);
+  const date = new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' });
+  console.log(`[${date}] (${process.pid}): ${text}`);
 }

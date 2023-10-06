@@ -69,6 +69,11 @@ class Authorization {
     }
   }
 
+  /**
+   * Determines if the requested route is optional and does not require authorization.
+   * @param {Object} req - The request object.
+   * @returns {boolean} - Returns true if the requested route is optional, false otherwise.
+   */
   optionalRoutes(req) {
     switch(true) {
       // Profile

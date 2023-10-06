@@ -67,7 +67,13 @@ class Handler {
         
           res.end = function (chunk) {
             if (chunk) chunks.push(chunk);
-            const responseBody = JSON.parse(chunks);
+            let responseBody = null;
+
+            try {
+              responseBody = JSON.parse(chunks)
+            } catch(err) {
+              responseBody = chunks
+            }
             
             server.sendLogs('New Request: ' + req.originalUrl + '\n- Header: ' + JSON.stringify(req.headers, null, 2) + '\n- Body: ' + JSON.stringify(req.body, null, 2) + '\n- Response: ' + JSON.stringify(responseBody, null, 2));
         
