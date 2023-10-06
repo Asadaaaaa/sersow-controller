@@ -16,7 +16,9 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
           script: |
-            cd sersow/staging/sersow-controller
+            cd app/sersow/controller/staging
+            git reset --hard HEAD
+            git switch staging
             git pull origin staging
             npm i
-            pm2 restart stg-sersow-controller
+            pm2 restart sersow-controller-staging

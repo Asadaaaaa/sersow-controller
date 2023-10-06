@@ -163,7 +163,7 @@ class ProjectValidator {
       'program', 'paper', 'code', 'tags', 'contributors'
     ],
     additionalProperties: false
-  };
+  }
 }
 
 export default ProjectValidator;

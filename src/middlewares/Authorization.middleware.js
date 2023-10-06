@@ -69,6 +69,11 @@ class Authorization {
     }
   }
 
+  /**
+   * Determines if the requested route is optional and does not require authorization.
+   * @param {Object} req - The request object.
+   * @returns {boolean} - Returns true if the requested route is optional, false otherwise.
+   */
   optionalRoutes(req) {
     switch(true) {
       // Profile
@@ -85,7 +90,7 @@ class Authorization {
       case req.path.endsWith('/project/get/user/' + req.params.targetUserId): return true;
       case req.path.endsWith('/project/get/collabs/' + req.params.targetUserId): true;
       case req.path.endsWith('/project/get/foryou'): return true;
-      case req.path.endsWith('/project/search/title/' + req.params.title): return true;
+      case req.path.endsWith('/project/search'): return true;
 
       default: return false;
     }

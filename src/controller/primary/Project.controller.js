@@ -711,10 +711,10 @@ class ProjectController {
   }
 
   async searchProject(req, res) {
-    const { title } = req.params;
+    const { text, category } = req.query;
     const { userId } = req.middlewares.authorization;
 
-    const searchProjectSrv = await this.ProjectService.searchProject(title, userId);
+    const searchProjectSrv = await this.ProjectService.searchProject(text, category, userId);
     
     return res.status(200).json(this.ResponsePreset.resOK(
       'OK',
