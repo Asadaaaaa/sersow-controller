@@ -1,15 +1,31 @@
 {
   "name": "sersow-controller",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "./src/Main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ."
+    "start": "node .",
+    "dev": "nodemon ."
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2"
+    "ajv": "^8.12.0",
+    "cluster": "^0.7.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "file-type": "^18.2.1",
+    "fs-extra": "^11.1.1",
+    "jsonwebtoken": "^9.0.0",
+    "md5": "^2.3.0",
+    "morgan": "^1.10.0",
+    "mysql2": "^3.2.0",
+    "nanoid": "^4.0.2",
+    "nodemailer": "^6.9.1",
+    "nodemon": "^2.0.22",
+    "sequelize": "^6.30.0"
   }
 }
