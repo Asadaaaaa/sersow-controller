@@ -9,6 +9,7 @@ import ProjectThumbnailModel from "../../models/ProjectThumbnail.model.js";
 import ProjectPreviewModel from "../../models/ProjectPreview.model.js";
 import ProjectFilesModel from "../../models/ProjectFiles.model.js";
 import ProjectRankModel from "../../models/ProjectRank.model.js";
+import ProjectFeaturedModel from "../../models/ProjectFeatured.model.js";
 import ProjectLikesModel from "../../models/ProjectLikes.model.js";
 import ProjectCommentsModel from "../../models/ProjectComments.model.js";
 import FollowingModel from "../../models/Following.model.js";
@@ -34,6 +35,7 @@ class ProjectService {
     this.ProjectPreviewModel = new ProjectPreviewModel(this.server).table;
     this.ProjectFilesModel = new ProjectFilesModel(this.server).table;
     this.ProjectRankModel = new ProjectRankModel(this.server).table;
+    this.ProjectFeaturedModel = new ProjectFeaturedModel(this.server).table;
     this.ProjectLikesModel = new ProjectLikesModel(this.server).table;
     this.ProjectCommentsModel = new ProjectCommentsModel(this.server).table;
     this.FollowingModel = new FollowingModel(this.server).table;
@@ -1081,6 +1083,20 @@ class ProjectService {
     });
 
     return await this.getListPreviewProjects(getDataProjectRankModel, userId);
+  }
+
+  async getProjectFeatured() {
+    const getDataProjectFeaturedModel = await this.ProjectFeaturedModel.findAll({
+      attributes: [
+        ['project_id', 'id'],
+        'user_id',
+        'title',
+        'description',
+        ['logo_path', 'logo']
+      ]
+    });
+
+    return await this.getListPreviewProjects(getDataProjectFeaturedModel, null);
   }
 
   async getCategoryProject() {
