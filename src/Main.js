@@ -57,9 +57,12 @@ class Server {
 
   run() {
     this.API = Express();
+    const middlewareHandler = new MiddlewareHandler(this);
 
-    new MiddlewareHandler(this);
+    middlewareHandler.global();
     new RouteHandler(this);
+    middlewareHandler.missingRoute();
+    
 
     this.API.listen(this.env.PORT, this.env.IP, () => this.sendLogs('Server Started, Listening PORT ' + this.env.PORT));
   }

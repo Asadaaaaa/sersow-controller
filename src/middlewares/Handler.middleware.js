@@ -11,8 +11,6 @@ class Handler {
       this.API = this.server.API;
 
       this.ResponsePreset = new ResponsePreset();
-
-      this.global();
     }
 
     global() {
@@ -106,6 +104,13 @@ class Handler {
           ].join(' ')
         }));
       }
+    }
+
+    missingRoute() {
+      this.API.get('*', (req, res) => {
+        // Redirect to the desired URL
+        res.redirect(`${this.server.env.WEB_HOST}/not-found`);
+      });
     }
 }
 

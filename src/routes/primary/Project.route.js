@@ -42,6 +42,7 @@ class ProjectRoute extends Primary {
     // Get List Projects
     this.API.get(this.endpointPrefix + '/get/foryou', this.AuthorizationMiddleware.check(), (req, res) => this.ProjectController.getForYou(req, res));
     this.API.get(this.endpointPrefix + '/trends/project', this.AuthorizationMiddleware.check(), (req, res) => this.ProjectController.getProjectTrends(req, res));
+    this.API.get(this.endpointPrefix + '/featured/project', (req, res) => this.ProjectController.getProjectFeatured(req, res));
 
     // Get Project Searching
     this.API.get(this.endpointPrefix + '/search', this.AuthorizationMiddleware.check(), (req, res) => this.ProjectController.searchProject(req, res));
