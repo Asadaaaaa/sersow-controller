@@ -710,6 +710,16 @@ class ProjectController {
     ));
   }
 
+  // --- Get Project Featured
+  async getProjectFeatured(req, res) {
+    const getProjectTrendsSrv = await this.ProjectService.getProjectFeatured();
+
+    return res.status(200).json(this.ResponsePreset.resOK(
+      'OK',
+      getProjectTrendsSrv
+    ));
+  }
+
   async searchProject(req, res) {
     const { text, category } = req.query;
     const { userId } = req.middlewares.authorization;
