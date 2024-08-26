@@ -531,12 +531,12 @@ class ProjectService {
         
         if(val.dataValues.type === 2) getDataProjectModel.dataValues.paper = {
           isUrl: val.dataValues.method === 1 ? false : true,
-          url: val.dataValues.method === 1 ? this.server.FS.readFileSync(process.cwd() + val.dataValues.path).toString('base64') : val.dataValues.url,
+          url: val.dataValues.method === 1 ? this.server.FS.readFileSync(process.cwd() + val.dataValues.url).toString('base64') : val.dataValues.url,
         }
 
         if(val.dataValues.type === 3) getDataProjectModel.dataValues.code = {
           isUrl: val.dataValues.method === 1 ? false : true,
-          url: val.dataValues.method === 1 ? this.server.FS.readFileSync(process.cwd() + val.dataValues.path).toString('base64') : val.dataValues.url,
+          url: val.dataValues.method === 1 ? this.server.FS.readFileSync(process.cwd() + val.dataValues.url).toString('base64') : val.dataValues.url,
         }
       });
     }
