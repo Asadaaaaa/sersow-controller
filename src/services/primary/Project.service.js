@@ -381,8 +381,8 @@ class ProjectService {
       }
       
       await transaction.commit();
-      const filteredArrayOfImages = [logo, thumbnail.data, image1, image2, image3].filter(item => item !== null);
-      this.nsfwDetector(filteredArrayOfImages, addDataProjectModel[0].dataValues.id);
+
+      this.nsfwDetector([thumbnail.data, image1, image2, image3], addDataProjectModel[0].dataValues.id);
     } catch (err) {
       console.log(err)
       return -500;
@@ -394,6 +394,8 @@ class ProjectService {
   async nsfwDetector(images, projectId) {
     const url = 'https://api-fluxync.sersow.com/v1/primary/services/nsfw-detector/demo';
     for (let i = 0; i < images.length; i++) {
+      if(images[i] === null) continue;
+
       try {
         const getNSFWDetectorData = await fetch(url, {
           method: 'POST',
@@ -405,11 +407,18 @@ class ProjectService {
           })
         });
         const getNSFWDetectorDataJson = await getNSFWDetectorData.json();
-        this.server.sendLogs(JSON.stringify(getNSFWDetectorDataJson, null, 2));
+        
         if(getNSFWDetectorDataJson.data.image_label === 'porn') {
           await this.ProjectModel.update({ flagged_nsfw: true }, {
             where: { id: projectId }
           });
+
+          if(i === 0) {
+            await this.ProjectThumbnailModel.update({ flagged_nsfw: true }, {
+              where: { project_id: projectId }
+            });
+          }
+
           break;
         }
       } catch (error) {
@@ -1342,6 +1351,8 @@ class ProjectService {
           dataProjectModel[i].dataValues.thumbnail.isUrl = true;
           dataProjectModel[i].dataValues.thumbnail.data = getDataProjectThumbnailModel.dataValues.url;
         }
+        
+        dataProjectModel[i].dataValues.thumbnail.flagged_nsfw = getDataProjectThumbnailModel.dataValues.flagged_nsfw;
       } else {
         dataProjectModel[i].dataValues.thumbnail = null;
       }

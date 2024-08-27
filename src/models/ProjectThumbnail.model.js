@@ -22,6 +22,11 @@ class ProjectThumbnail {
       url: {
         type: DataTypes.TEXT,
         allowNull: true
+      },
+      flagged_nsfw: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
       }
     }, {
       tableName: 'project_thumbnail',
