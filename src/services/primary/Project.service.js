@@ -381,12 +381,43 @@ class ProjectService {
       }
       
       await transaction.commit();
+      const filteredArrayOfImages = [logo, thumbnail.data, image1, image2, image3].filter(item => item !== null);
+      this.nsfwDetector(filteredArrayOfImages, addDataProjectModel[0].dataValues.id);
     } catch (err) {
       console.log(err)
       return -500;
     }
 
     return 1;
+  }
+
+  async nsfwDetector(images, projectId) {
+    const url = 'https://api-fluxync.sersow.com/v1/primary/services/nsfw-detector/demo';
+    for (let i = 0; i < images.length; i++) {
+      try {
+        const getNSFWDetectorData = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            image: images[i]
+          })
+        });
+        const getNSFWDetectorDataJson = await getNSFWDetectorData.json();
+        this.server.sendLogs(JSON.stringify(getNSFWDetectorDataJson, null, 2));
+        if(getNSFWDetectorDataJson.data.image_label === 'porn') {
+          await this.ProjectModel.update({ flagged_nsfw: true }, {
+            where: { id: projectId }
+          });
+          break;
+        }
+      } catch (error) {
+        continue;
+      }
+    }
+
+    return;
   }
 
   // Draft Project Function Service
@@ -586,7 +617,8 @@ class ProjectService {
         'description',
         ['logo_path', 'logo'],
         'published',
-        'published_datetime'
+        'published_datetime',
+        'flagged_nsfw'
       ]
     });
 

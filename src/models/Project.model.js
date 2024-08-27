@@ -44,6 +44,11 @@ class Project {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
+      },
+      flagged_nsfw: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
       }
     }, {
       tableName: 'project',
