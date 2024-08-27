@@ -646,7 +646,6 @@ class ProjectController {
   }
 
   async getUserCollabs(req, res) {
-    console.log(req.query)
     const { targetUserId } = req.params;
     const { userId } = req.middlewares.authorization;
     
