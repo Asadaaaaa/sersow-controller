@@ -403,6 +403,8 @@ class ProjectService {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
+            uuid: '18219dc8-64c8-11ef-ab05-00090ffe0001',
+            secret_key: 'Hj8UVtRalCUXW9qZXdfcQsTlkZl61S13oFZBWcuPrycuXzMKZRe71lAOALge',
             image: images[i]
           })
         });
